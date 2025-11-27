@@ -1,0 +1,67 @@
+{
+    "name": "crustum/notification",
+    "description": "Notification plugin for CakePHP applications - Multi-channel notification system",
+    "type": "cakephp-plugin",
+    "authors": [
+        {
+            "name": "Evgeny Tomenko",
+            "homepage": "https://github.com/skie"
+        }
+    ],
+   "license": "MIT",
+    "require": {
+        "php": ">=8.1",
+        "cakephp/cakephp": "^5.1",
+        "cakephp/authentication": "*",
+        "cakephp/authorization": "*",
+        "cakephp/queue": "^2.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5",
+        "ratchet/pawl": "^0.4",
+        "cakephp/bake": "^3.0",
+        "react/http": "^1.7",
+        "cakephp/cakephp-codesniffer": "^5.0"
+    },
+    "suggest": {
+        "crustum/notification-slack": "Slack notification channel",
+        "crustum/notification-telegram": "Telegram notification channel",
+        "crustum/notification-rocketchat": "RocketChat notification channel",
+        "crustum/notification-webhook": "Webhook notification channel",
+        "crustum/notification-broadcasting": "Broadcasting notification channel",
+        "crustum/notification-seven": "Seven.io SMS notification channel",
+        "crustum/notification-ui": "Notification UI plugin for web interface"
+    },
+    "autoload": {
+        "psr-4": {
+            "Crustum\\Notification\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "TestApp\\": "tests/TestApp/",
+            "Crustum\\Notification\\Test\\": "tests/"
+        }
+    },
+    "scripts": {
+        "cs-check": "phpcs -p --standard=phpcs.xml src/ tests/",
+        "cs-fix": "phpcbf --standard=phpcs.xml src/ tests/",
+        "test": "phpunit",
+        "test:unit": "phpunit --testsuite=Unit",
+        "test:integration": "phpunit --testsuite=Integration",
+        "test:coverage": "phpunit --coverage-html coverage",
+        "stan": "tools/phpstan analyse src/",
+        "psalm": "tools/psalm --show-info=false",
+        "stan-tests": "tools/phpstan analyze -c tests/phpstan.neon",
+        "stan-baseline": "tools/phpstan --generate-baseline"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        },
+        "platform-check": false
+    },
+    "repositories": []
+}

@@ -1,0 +1,80 @@
+<?php
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Cake\Datasource\EntityInterface;
+use Crustum\Notification\AnonymousNotifiable;
+{% if 'database' in channels %}
+use Crustum\Notification\Message\DatabaseMessage;
+{% endif %}
+{% if 'mail' in channels %}
+use Crustum\Notification\Message\MailMessage;
+{% endif %}
+use Crustum\Notification\Notification;
+{% for channel, data in channelData %}
+{% if data.imports %}
+{% for import in data.imports %}
+use {{ import }};
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+/**
+ * {{ class }}
+ *
+ * Notification for {{ notificationName }}.
+ */
+class {{ class }} extends Notification
+{
+    /**
+     * Determine which channels the notification should be sent through
+     *
+     * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable The entity receiving the notification
+     * @return array<string> Array of channel names
+     */
+    public function via(EntityInterface|AnonymousNotifiable $notifiable): array
+    {
+        return [{{ channels|map(c => "'" ~ c ~ "'")|join(', ') }}];
+    }
+
+{% if 'database' in channels %}
+    /**
+     * Get the database representation of the notification
+     *
+     * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable The entity receiving the notification
+     * @return \Crustum\Notification\Message\DatabaseMessage|array<string, mixed>
+     */
+    public function toDatabase(EntityInterface|AnonymousNotifiable $notifiable): DatabaseMessage|array
+    {
+        return (new DatabaseMessage())->data([
+            'title' => '{{ notificationName }}',
+            'message' => 'You have a new notification',
+        ]);
+    }
+
+{% endif %}
+{% if 'mail' in channels %}
+    /**
+     * Get the mail representation of the notification
+     *
+     * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable The entity receiving the notification
+     * @return \Crustum\Notification\Message\MailMessage
+     */
+    public function toMail(EntityInterface|AnonymousNotifiable $notifiable): MailMessage
+    {
+        return MailMessage::create()
+            ->subject('{{ notificationName }}')
+            ->greeting('Hello!')
+            ->line('You have a new notification')
+            ->line('{{ notificationName }}')
+            ->salutation('Best Regards');
+    }
+{% endif %}
+{% for channel, data in channelData %}
+{% if data.templatePath %}
+{{ include(data.templatePath) }}
+
+{% endif %}
+{% endfor %}
+}

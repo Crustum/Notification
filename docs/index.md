@@ -1,6 +1,7 @@
 # Notifications
 
 - [Introduction](#introduction)
+- [Quickstart](#quickstart)
 - [Generating Notifications](#generating-notifications)
 - [Sending Notifications](#sending-notifications)
     - [Using the Notifiable Behavior](#using-the-notifiable-behavior)
@@ -37,6 +38,34 @@
 The CakePHP Notification plugin provides support for sending notifications across a variety of delivery channels, including email, SMS (via Seven.io), Telegram, RocketChat, Slack, and Webhooks. Notifications may also be stored in a database so they may be displayed in your web interface. Additionally, broadcasting notifications are handled by a separate plugin.
 
 Typically, notifications should be short, informational messages that notify users of something that occurred in your application. For example, if you are writing a billing application, you might send an "Invoice Paid" notification to your users via the email and SMS channels.
+
+
+<a name="quickstart"></a>
+## Quickstart
+
+### Installing the Plugin
+
+Install via Composer:
+
+```bash
+composer require crustum/notification
+```
+
+> [!NOTE]
+> This plugin should be registered in your `config/plugins.php` file.
+
+```bash
+bin/cake plugin load Crustum/Notification
+```
+
+> [!TIP]
+> **After the plugin registers itself**, it's recommended to install the configuration with the manifest system:
+
+```bash
+bin/cake manifest install --plugin Crustum/Notification
+```
+
+The Notification plugin will create the `config/notification.php` configuration file where you may register your application's notification channels. Additionally, it will copy the migrations to the application's migrations directory and append the loading of the `config/notification.php` file to the `config/bootstrap.php` file.
 
 <a name="generating-notifications"></a>
 ## Generating Notifications

@@ -55,7 +55,13 @@ class DatabaseChannel implements ChannelInterface
 
         $entity = $notificationsTable->newEntity($this->buildPayload($notifiable, $notification));
 
-        return $notificationsTable->save($entity);
+        $saved = $notificationsTable->save($entity);
+
+        if ($saved && $saved->id && $saved->id !== $notification->getId()) {
+            $notification->setId($saved->id);
+        }
+
+        return $saved;
     }
 
     /**

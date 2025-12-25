@@ -1,0 +1,24 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * Notification Plugin Configuration
+ *
+ * This file contains the default configuration for the Notification plugin.
+ * You can override these settings in your application's config/app.php file.
+ */
+
+return [
+    'Notification' => [
+        'channels' => [
+            'database' => [
+                'className' => 'Crustum/Notification.Database',
+            ],
+            'mail' => [
+                'className' => 'Crustum/Notification.Mail',
+                'profile' => env('NOTIFICATION_MAIL_PROFILE', 'default'),
+            ],
+        ],
+    ],
+];
+

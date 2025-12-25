@@ -47,7 +47,11 @@ Load the plugin in your `Application.php`:
 $this->addPlugin('Crustum/BroadcastingNotification');
 ```
 
-Configure your WebSocket server in `config/broadcasting.php`. The plugin supports Pusher-compatible WebSocket servers.
+Configure your connection in `config/broadcasting.php`. The plugin supports Pusher-compatible WebSocket servers and Mercure via Server-Sent Events (SSE).
+
+For Pusher, configure your Pusher credentials in the broadcasting configuration.
+
+For Mercure support, install the `crustum/mercure-broadcasting` plugin and configure it in your broadcasting settings. See the Mercure Broadcasting plugin documentation for detailed setup instructions.
 
 <a name="formatting-broadcasting-notifications"></a>
 ### Formatting Broadcasting Notifications
@@ -183,7 +187,7 @@ composer require crustum/notification-slack
 Load the plugin in your `Application.php`:
 
 ```php
-$this->addPlugin('Cake/SlackNotification');
+$this->addPlugin('Crustum/SlackNotification');
 ```
 
 Configure your Slack webhook URL in your application configuration.
@@ -198,13 +202,13 @@ Slack notifications support two message formats: the modern Block Kit API and th
 Block Kit is Slack's modern framework for building rich, interactive messages. Use `BlockKitMessage` for new implementations:
 
 ```php
-use Cake\SlackNotification\BlockKit\BlockKitMessage;
+use Crustum\SlackNotification\BlockKit\BlockKitMessage;
 
 /**
  * Get the Slack representation of the notification.
  *
  * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
- * @return \Cake\SlackNotification\BlockKit\BlockKitMessage
+ * @return \Crustum\SlackNotification\BlockKit\BlockKitMessage
  */
 public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): BlockKitMessage
 {
@@ -239,7 +243,7 @@ public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): BlockK
 For simple messages or maintaining backward compatibility, use `SlackMessage`:
 
 ```php
-use Cake\SlackNotification\Message\SlackMessage;
+use Crustum\SlackNotification\Message\SlackMessage;
 
 /**
  * Get the Slack representation of the notification.
@@ -260,7 +264,7 @@ public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): SlackM
 Slack attachments provide a way to add rich formatting and fields to your notifications. You can use attachments to display structured data:
 
 ```php
-use Cake\SlackNotification\Message\SlackMessage;
+use Crustum\SlackNotification\Message\SlackMessage;
 
 /**
  * Get the Slack representation of the notification.

@@ -11,6 +11,7 @@ use Cake\Queue\QueueManager;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
 use Crustum\Notification\Job\SendQueuedNotificationJob;
+use Crustum\Notification\Model\Entity\Notification as NotificationEntity;
 use Throwable;
 
 /**
@@ -91,9 +92,15 @@ class NotificationSender
                 $this->preferredLocale($notifiable, $notification),
                 function () use ($viaChannels, $notifiable, $original): void {
                     $notificationId = Text::uuid();
+                    $actualNotificationId = $notificationId;
 
                     foreach ((array)$viaChannels as $channel) {
-                        $this->sendToNotifiable($notifiable, $notificationId, clone $original, $channel);
+                        $notificationClone = clone $original;
+                        $response = $this->sendToNotifiable($notifiable, $actualNotificationId, $notificationClone, $channel);
+
+                        if ($channel === 'database' && $response instanceof NotificationEntity && $response->id) {
+                            $actualNotificationId = $response->id;
+                        }
                     }
                 },
             );
@@ -107,16 +114,16 @@ class NotificationSender
      * @param string $id Unique notification ID
      * @param \Crustum\Notification\Notification $notification The notification instance
      * @param string $channel The channel name
-     * @return void
+     * @return \Crustum\Notification\Model\Entity\Notification|null The saved notification entity, or null if not saved
      */
-    protected function sendToNotifiable(EntityInterface|AnonymousNotifiable $notifiable, string $id, Notification $notification, string $channel): void
+    protected function sendToNotifiable(EntityInterface|AnonymousNotifiable $notifiable, string $id, Notification $notification, string $channel): mixed
     {
         if (!$notification->getId()) {
             $notification->setId($id);
         }
 
         if (!$this->shouldSendNotification($notifiable, $notification, $channel)) {
-            return;
+            return null;
         }
 
         try {
@@ -129,6 +136,8 @@ class NotificationSender
                 'channel' => $channel,
                 'response' => $response,
             ],);
+
+            return $response;
         } catch (Throwable $exception) {
             $this->dispatchEvent('Model.Notification.failed', [
                 'notifiable' => $notifiable,

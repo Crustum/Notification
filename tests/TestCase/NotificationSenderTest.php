@@ -118,7 +118,6 @@ class NotificationSenderTest extends TestCase
 
         $reflection = new ReflectionClass($sender);
         $method = $reflection->getMethod('formatNotifiables');
-        $method->setAccessible(true);
 
         $result = $method->invoke($sender, $entity);
 

@@ -339,11 +339,13 @@ public function toMail(EntityInterface|AnonymousNotifiable $notifiable): MailMes
 }
 ```
 
-> **Note:** Note we are using `$this->invoice->id` in our `toMail()` method. You may pass any data your notification needs to generate its message into the notification's constructor.
+> [!NOTE]
+> Note we are using `$this->invoice->id` in our `toMail()` method. You may pass any data your notification needs to generate its message into the notification's constructor.
 
 In this example, we register a greeting, a line of text, a call to action, and then another line of text. These methods provided by the `MailMessage` object make it simple and fast to format small transactional emails. The mail channel will then translate the message components into a beautiful, responsive HTML email template with a plain-text counterpart.
 
-> **Note:** When sending mail notifications, be sure to set the configuration in your `config/app.php` configuration file. This value will be used in the header and footer of your mail notification messages.
+> [!NOTE]
+> When sending mail notifications, be sure to set the configuration in your `config/app.php` configuration file. This value will be used in the header and footer of your mail notification messages.
 
 #### Error Messages
 
@@ -730,7 +732,8 @@ Enable WebSocket broadcasting for instant notification delivery:
 
 With broadcasting enabled, notifications are delivered instantly via WebSocket while still being persisted in the database. This provides the best user experience with reliable fallback.
 
-> **Note:** Broadcasting requires the `crustum/broadcasting-notification` plugin to be installed and configured. See the [Broadcasting Notifications](modules.md#broadcasting-notifications) documentation for more details.
+> [!NOTE]
+> Broadcasting requires the `crustum/broadcasting-notification` plugin to be installed and configured. See the [Broadcasting Notifications](modules.md#broadcasting-notifications) documentation for more details.
 
 <a name="localizing-notifications"></a>
 ## Localizing Notifications

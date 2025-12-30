@@ -12,10 +12,18 @@ use Crustum\Notification\Notification;
 class MockChannel implements ChannelInterface
 {
     /**
-     * @inheritDoc
+     * Channel configuration
+     *
+     * @var array<string, mixed>
+     */
+    protected array $config;
+
+    /**
+     * @param array<string, mixed> $config Channel configuration
      */
     public function __construct(array $config = [])
     {
+        $this->config = $config;
     }
 
     /**

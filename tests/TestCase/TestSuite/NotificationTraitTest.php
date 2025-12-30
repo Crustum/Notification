@@ -43,7 +43,9 @@ class NotificationTraitTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->Users = $this->getTableLocator()->get('TestApp.Users');
+        /** @var \TestApp\Model\Table\UsersTable $usersTable */
+        $usersTable = $this->getTableLocator()->get('Users');
+        $this->Users = $usersTable;
     }
 
     /**
@@ -53,10 +55,9 @@ class NotificationTraitTest extends TestCase
      */
     public function testAssertNotificationSent(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
-        $usersTable->notify($user, new PostPublished(1, 'Test Post'));
+        $this->Users->notify($user, new PostPublished(1, 'Test Post'));
 
         $this->assertNotificationSent(PostPublished::class);
     }
@@ -68,10 +69,9 @@ class NotificationTraitTest extends TestCase
      */
     public function testAssertNotificationNotSent(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
-        $usersTable->notify($user, new PostPublished(1, 'Test Post'));
+        $this->Users->notify($user, new PostPublished(1, 'Test Post'));
 
         $this->assertNotificationNotSent(UserRegistered::class);
     }
@@ -83,13 +83,12 @@ class NotificationTraitTest extends TestCase
      */
     public function testAssertNotificationCount(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user1 = $usersTable->get(1);
-        $user2 = $usersTable->get(2);
+        $user1 = $this->Users->get(1);
+        $user2 = $this->Users->get(2);
 
-        $usersTable->notify($user1, new PostPublished(1, 'Test Post'));
-        $usersTable->notify($user2, new PostPublished(2, 'Another Post'));
-        $usersTable->notify($user1, new AdminAlert('Alert Message'));
+        $this->Users->notify($user1, new PostPublished(1, 'Test Post'));
+        $this->Users->notify($user2, new PostPublished(2, 'Another Post'));
+        $this->Users->notify($user1, new AdminAlert('Alert Message'));
 
         $this->assertNotificationCount(3);
     }
@@ -111,12 +110,11 @@ class NotificationTraitTest extends TestCase
      */
     public function testAssertNotificationSentTo(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user1 = $usersTable->get(1);
-        $user2 = $usersTable->get(2);
+        $user1 = $this->Users->get(1);
+        $user2 = $this->Users->get(2);
 
-        $usersTable->notify($user1, new PostPublished(1, 'Test Post'));
-        $usersTable->notify($user2, new AdminAlert('Alert'));
+        $this->Users->notify($user1, new PostPublished(1, 'Test Post'));
+        $this->Users->notify($user2, new AdminAlert('Alert'));
 
         $this->assertNotificationSentTo($user1, PostPublished::class);
         $this->assertNotificationSentTo($user2, AdminAlert::class);
@@ -129,11 +127,10 @@ class NotificationTraitTest extends TestCase
      */
     public function testAssertNotificationNotSentTo(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user1 = $usersTable->get(1);
-        $user2 = $usersTable->get(2);
+        $user1 = $this->Users->get(1);
+        $user2 = $this->Users->get(2);
 
-        $usersTable->notify($user1, new PostPublished(1, 'Test Post'));
+        $this->Users->notify($user1, new PostPublished(1, 'Test Post'));
 
         $this->assertNotificationNotSentTo($user2, PostPublished::class);
         $this->assertNotificationNotSentTo($user1, AdminAlert::class);
@@ -146,10 +143,9 @@ class NotificationTraitTest extends TestCase
      */
     public function testAssertNotificationSentToChannel(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
-        $usersTable->notify($user, new PostPublished(1, 'Test Post'));
+        $this->Users->notify($user, new PostPublished(1, 'Test Post'));
 
         $this->assertNotificationSentToChannel('database', PostPublished::class);
         $this->assertNotificationSentToChannel('mail', PostPublished::class);
@@ -177,13 +173,12 @@ class NotificationTraitTest extends TestCase
      */
     public function testAssertNotificationSentTimes(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user1 = $usersTable->get(1);
-        $user2 = $usersTable->get(2);
+        $user1 = $this->Users->get(1);
+        $user2 = $this->Users->get(2);
 
-        $usersTable->notify($user1, new PostPublished(1, 'First Post'));
-        $usersTable->notify($user2, new PostPublished(2, 'Second Post'));
-        $usersTable->notify($user1, new PostPublished(3, 'Third Post'));
+        $this->Users->notify($user1, new PostPublished(1, 'First Post'));
+        $this->Users->notify($user2, new PostPublished(2, 'Second Post'));
+        $this->Users->notify($user1, new PostPublished(3, 'Third Post'));
 
         $this->assertNotificationSentTimes(PostPublished::class, 3);
         $this->assertNotificationSentTimes(AdminAlert::class, 0);
@@ -196,12 +191,11 @@ class NotificationTraitTest extends TestCase
      */
     public function testAssertNotificationSentToTimes(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
-        $usersTable->notify($user, new PostPublished(1, 'First Post'));
-        $usersTable->notify($user, new PostPublished(2, 'Second Post'));
-        $usersTable->notify($user, new AdminAlert('Alert'));
+        $this->Users->notify($user, new PostPublished(1, 'First Post'));
+        $this->Users->notify($user, new PostPublished(2, 'Second Post'));
+        $this->Users->notify($user, new AdminAlert('Alert'));
 
         $this->assertNotificationSentToTimes($user, PostPublished::class, 2);
         $this->assertNotificationSentToTimes($user, AdminAlert::class, 1);
@@ -214,10 +208,9 @@ class NotificationTraitTest extends TestCase
      */
     public function testAssertNotificationDataContains(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
-        $usersTable->notify($user, new PostPublished(123, 'My Great Post'));
+        $this->Users->notify($user, new PostPublished(123, 'My Great Post'));
 
         $this->assertNotificationDataContains(PostPublished::class, 'post_id', 123);
         $this->assertNotificationDataContains(PostPublished::class, 'post_title', 'My Great Post');
@@ -230,11 +223,10 @@ class NotificationTraitTest extends TestCase
      */
     public function testGetNotifications(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
-        $usersTable->notify($user, new PostPublished(1, 'Test Post'));
-        $usersTable->notify($user, new AdminAlert('Alert'));
+        $this->Users->notify($user, new PostPublished(1, 'Test Post'));
+        $this->Users->notify($user, new AdminAlert('Alert'));
 
         $notifications = $this->getNotifications();
 
@@ -250,13 +242,12 @@ class NotificationTraitTest extends TestCase
      */
     public function testGetNotificationsByClass(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user1 = $usersTable->get(1);
-        $user2 = $usersTable->get(2);
+        $user1 = $this->Users->get(1);
+        $user2 = $this->Users->get(2);
 
-        $usersTable->notify($user1, new PostPublished(1, 'First'));
-        $usersTable->notify($user2, new PostPublished(2, 'Second'));
-        $usersTable->notify($user1, new AdminAlert('Alert'));
+        $this->Users->notify($user1, new PostPublished(1, 'First'));
+        $this->Users->notify($user2, new PostPublished(2, 'Second'));
+        $this->Users->notify($user1, new AdminAlert('Alert'));
 
         $postNotifications = $this->getNotificationsByClass(PostPublished::class);
         $alertNotifications = $this->getNotificationsByClass(AdminAlert::class);
@@ -272,13 +263,12 @@ class NotificationTraitTest extends TestCase
      */
     public function testGetNotificationsFor(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user1 = $usersTable->get(1);
-        $user2 = $usersTable->get(2);
+        $user1 = $this->Users->get(1);
+        $user2 = $this->Users->get(2);
 
-        $usersTable->notify($user1, new PostPublished(1, 'First'));
-        $usersTable->notify($user1, new PostPublished(2, 'Second'));
-        $usersTable->notify($user2, new PostPublished(3, 'Third'));
+        $this->Users->notify($user1, new PostPublished(1, 'First'));
+        $this->Users->notify($user1, new PostPublished(2, 'Second'));
+        $this->Users->notify($user2, new PostPublished(3, 'Third'));
 
         $user1Notifications = $this->getNotificationsFor($user1, PostPublished::class);
         $user2Notifications = $this->getNotificationsFor($user2, PostPublished::class);
@@ -294,11 +284,10 @@ class NotificationTraitTest extends TestCase
      */
     public function testGetNotificationsByChannel(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
-        $usersTable->notify($user, new PostPublished(1, 'Post'));
-        $usersTable->notify($user, new AdminAlert('Alert'));
+        $this->Users->notify($user, new PostPublished(1, 'Post'));
+        $this->Users->notify($user, new AdminAlert('Alert'));
 
         $databaseNotifications = $this->getNotificationsByChannel('database');
         $mailNotifications = $this->getNotificationsByChannel('mail');
@@ -314,11 +303,10 @@ class NotificationTraitTest extends TestCase
      */
     public function testGetOnDemandNotifications(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
         $anonymous = NotificationManager::route('mail', 'admin@example.com');
 
-        $usersTable->notify($user, new PostPublished(1, 'Post'));
+        $this->Users->notify($user, new PostPublished(1, 'Post'));
         $anonymous->notify(new AdminAlert('Server Down', 'critical'));
 
         $onDemandNotifications = $this->getOnDemandNotifications();
@@ -335,12 +323,11 @@ class NotificationTraitTest extends TestCase
      */
     public function testMultipleNotificationsToSameUser(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
-        $usersTable->notify($user, new PostPublished(1, 'First Post'));
-        $usersTable->notify($user, new PostPublished(2, 'Second Post'));
-        $usersTable->notify($user, new PostPublished(3, 'Third Post'));
+        $this->Users->notify($user, new PostPublished(1, 'First Post'));
+        $this->Users->notify($user, new PostPublished(2, 'Second Post'));
+        $this->Users->notify($user, new PostPublished(3, 'Third Post'));
 
         $this->assertNotificationSentToTimes($user, PostPublished::class, 3);
         $this->assertNotificationCount(3);
@@ -353,14 +340,13 @@ class NotificationTraitTest extends TestCase
      */
     public function testNotificationsToMultipleUsers(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user1 = $usersTable->get(1);
-        $user2 = $usersTable->get(2);
-        $user3 = $usersTable->get(3);
+        $user1 = $this->Users->get(1);
+        $user2 = $this->Users->get(2);
+        $user3 = $this->Users->get(3);
 
-        $usersTable->notify($user1, new PostPublished(1, 'Post'));
-        $usersTable->notify($user2, new PostPublished(2, 'Post'));
-        $usersTable->notify($user3, new PostPublished(3, 'Post'));
+        $this->Users->notify($user1, new PostPublished(1, 'Post'));
+        $this->Users->notify($user2, new PostPublished(2, 'Post'));
+        $this->Users->notify($user3, new PostPublished(3, 'Post'));
 
         $this->assertNotificationSentTo($user1, PostPublished::class);
         $this->assertNotificationSentTo($user2, PostPublished::class);
@@ -375,8 +361,7 @@ class NotificationTraitTest extends TestCase
      */
     public function testNotificationWithSendNow(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
         NotificationManager::sendNow($user, new PostPublished(1, 'Test Post'));
 
@@ -391,8 +376,7 @@ class NotificationTraitTest extends TestCase
      */
     public function testNotificationWithSpecificChannels(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
         NotificationManager::sendNow($user, new PostPublished(1, 'Test Post'), ['database']);
 
@@ -408,10 +392,9 @@ class NotificationTraitTest extends TestCase
      */
     public function testNotificationMetadata(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
-        $usersTable->notify($user, new PostPublished(1, 'Test Post'));
+        $this->Users->notify($user, new PostPublished(1, 'Test Post'));
 
         $notifications = $this->getNotifications();
         $notification = $notifications[0];

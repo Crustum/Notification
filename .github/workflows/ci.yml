@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.1', '8.2', '8.3', '8.4']
+        php-version: ['8.2', '8.3', '8.4']
         os: [ubuntu-latest, windows-latest]
     steps:
     - uses: actions/checkout@v4
@@ -44,11 +44,11 @@ jobs:
         vendor/bin/phpunit --configuration=phpunit.xml --display-deprecations --display-incomplete --display-skipped --coverage-clover=coverage.xml
 
     - name: Run PHPUnit without coverage
-      if: matrix.php-version != '8.2' || matrix.os != 'ubuntu-latest'
+      if: matrix.php-version != '8.3' || matrix.os != 'ubuntu-latest'
       run: vendor/bin/phpunit --configuration=phpunit.xml
 
     - name: Submit code coverage
-      if: matrix.php-version == '8.2' && matrix.os == 'ubuntu-latest'
+      if: matrix.php-version == '8.3' && matrix.os == 'ubuntu-latest'
       uses: codecov/codecov-action@v3
 
   cs-stan:
@@ -61,7 +61,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'
+        php-version: '8.3'
         extensions: mbstring, intl, pdo_sqlite
         coverage: none
         tools: phive

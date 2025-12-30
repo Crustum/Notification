@@ -39,7 +39,9 @@ class NotificationsTableTest extends TestCase
     {
         parent::setUp();
 
-        $this->Notifications = TableRegistry::getTableLocator()->get('Crustum/Notification.Notifications');
+        /** @var \Crustum\Notification\Model\Table\NotificationsTable $notificationsTable */
+        $notificationsTable = TableRegistry::getTableLocator()->get('Crustum/Notification.Notifications');
+        $this->Notifications = $notificationsTable;
     }
 
     /**
@@ -49,7 +51,6 @@ class NotificationsTableTest extends TestCase
      */
     public function tearDown(): void
     {
-        unset($this->Notifications);
         TableRegistry::getTableLocator()->clear();
 
         parent::tearDown();

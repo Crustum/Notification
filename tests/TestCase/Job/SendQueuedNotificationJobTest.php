@@ -60,7 +60,6 @@ class SendQueuedNotificationJobTest extends TestCase
      */
     protected function tearDown(): void
     {
-        unset($this->job);
         NotificationManager::drop('database');
         TableRegistry::getTableLocator()->clear();
 
@@ -250,10 +249,7 @@ class SendQueuedNotificationJobTest extends TestCase
      */
     protected function createMessage(array $arguments): Message
     {
-        $message = $this->getMockBuilder(Message::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getArgument'])
-            ->getMock();
+        $message = $this->createStub(Message::class);
 
         $message->method('getArgument')
             ->willReturnCallback(function ($key) use ($arguments) {

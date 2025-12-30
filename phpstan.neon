@@ -8,8 +8,5 @@ parameters:
     ignoreErrors:
         -
             identifier: missingType.generics
-        -
-            identifier: trait.unused
-            path: src/TestSuite/NotificationTrait.php
 
 services:

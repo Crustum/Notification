@@ -5,6 +5,7 @@ namespace TestApp\Model\Table;
 
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Crustum\Notification\Model\Trait\NotifiableTrait;
 
 /**
  * Users Table
@@ -12,17 +13,19 @@ use Cake\Validation\Validator;
  * @property \Cake\ORM\Association\HasMany $Posts
  * @property \Cake\ORM\Association\HasMany $Notifications
  * @method \TestApp\Model\Entity\User newEmptyEntity()
- * @method \TestApp\Model\Entity\User newEntity(array $data, array $options = [])
- * @method array<\TestApp\Model\Entity\User> newEntities(array $data, array $options = [])
- * @method \TestApp\Model\Entity\User get(mixed $primaryKey, array|string $finder = 'all', \Psr\SimpleCache\CacheInterface|string|null $cache = null, \Closure|string|null $cacheKey = null, mixed ...$args)
- * @method \TestApp\Model\Entity\User findOrCreate($search, ?callable $callback = null, array $options = [])
- * @method \TestApp\Model\Entity\User patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method array<\TestApp\Model\Entity\User> patchEntities(iterable $entities, array $data, array $options = [])
- * @method \TestApp\Model\Entity\User|false save(\Cake\Datasource\EntityInterface $entity, array $options = [])
- * @method \TestApp\Model\Entity\User saveOrFail(\Cake\Datasource\EntityInterface $entity, array $options = [])
+ * @method \TestApp\Model\Entity\User newEntity(array<string, mixed> $data, array<string, mixed> $options = [])
+ * @method array<\TestApp\Model\Entity\User> newEntities(array<string, mixed> $data, array<string, mixed> $options = [])
+ * @method \TestApp\Model\Entity\User get(mixed $primaryKey, array<string, mixed>|string $finder = 'all', \Psr\SimpleCache\CacheInterface|string|null $cache = null, \Closure|string|null $cacheKey = null, mixed ...$args)
+ * @method \TestApp\Model\Entity\User findOrCreate($search, ?callable $callback = null, array<string, mixed> $options = [])
+ * @method \TestApp\Model\Entity\User patchEntity(\Cake\Datasource\EntityInterface $entity, array<string, mixed> $data, array<string, mixed> $options = [])
+ * @method array<\TestApp\Model\Entity\User> patchEntities(iterable<\Cake\Datasource\EntityInterface> $entities, array<string, mixed> $data, array<string, mixed> $options = [])
+ * @method \TestApp\Model\Entity\User|false save(\Cake\Datasource\EntityInterface $entity, array<string, mixed> $options = [])
+ * @method \TestApp\Model\Entity\User saveOrFail(\Cake\Datasource\EntityInterface $entity, array<string, mixed> $options = [])
  */
 class UsersTable extends Table
 {
+    use NotifiableTrait;
+
     /**
      * Initialize method
      *

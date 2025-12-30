@@ -54,16 +54,17 @@ class NotifiableBehaviorTest extends TestCase
         $association = $table->getAssociation('Notifications');
         $conditions = $association->getConditions();
 
+        $this->assertIsArray($conditions);
         $this->assertArrayHasKey('Notifications.model', $conditions);
         $this->assertEquals('Users', $conditions['Notifications.model']);
     }
 
     /**
-     * Test that behavior implements required methods
+     * Test that behavior no longer implements methods (moved to trait)
      *
      * @return void
      */
-    public function testImplementsRequiredMethods(): void
+    public function testBehaviorNoLongerImplementsMethods(): void
     {
         $table = TableRegistry::getTableLocator()->get('Users');
         $table->addBehavior('Crustum/Notification.Notifiable');
@@ -71,9 +72,7 @@ class NotifiableBehaviorTest extends TestCase
         $behavior = $table->getBehavior('Notifiable');
         $implementedMethods = $behavior->implementedMethods();
 
-        $this->assertArrayHasKey('notify', $implementedMethods);
-        $this->assertArrayHasKey('notifyNow', $implementedMethods);
-        $this->assertArrayHasKey('routeNotificationFor', $implementedMethods);
+        $this->assertEmpty($implementedMethods);
     }
 
     /**
@@ -83,6 +82,7 @@ class NotifiableBehaviorTest extends TestCase
      */
     public function testRouteNotificationForDatabase(): void
     {
+        /** @var \TestApp\Model\Table\UsersTable $table */
         $table = TableRegistry::getTableLocator()->get('Users');
         $table->addBehavior('Crustum/Notification.Notifiable');
 

@@ -13,14 +13,14 @@ use TestApp\Notification\PostPublished;
  *
  * @property \Cake\ORM\Association\BelongsTo $Users
  * @method \TestApp\Model\Entity\Post newEmptyEntity()
- * @method \TestApp\Model\Entity\Post newEntity(array $data, array $options = [])
- * @method array<\TestApp\Model\Entity\Post> newEntities(array $data, array $options = [])
- * @method \TestApp\Model\Entity\Post get(mixed $primaryKey, array|string $finder = 'all', \Psr\SimpleCache\CacheInterface|string|null $cache = null, \Closure|string|null $cacheKey = null, mixed ...$args)
- * @method \TestApp\Model\Entity\Post findOrCreate($search, ?callable $callback = null, array $options = [])
- * @method \TestApp\Model\Entity\Post patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method array<\TestApp\Model\Entity\Post> patchEntities(iterable $entities, array $data, array $options = [])
- * @method \TestApp\Model\Entity\Post|false save(\Cake\Datasource\EntityInterface $entity, array $options = [])
- * @method \TestApp\Model\Entity\Post saveOrFail(\Cake\Datasource\EntityInterface $entity, array $options = [])
+ * @method \TestApp\Model\Entity\Post newEntity(array<string, mixed> $data, array<string, mixed> $options = [])
+ * @method array<\TestApp\Model\Entity\Post> newEntities(array<string, mixed> $data, array<string, mixed> $options = [])
+ * @method \TestApp\Model\Entity\Post get(mixed $primaryKey, array<string, mixed>|string $finder = 'all', \Psr\SimpleCache\CacheInterface|string|null $cache = null, \Closure|string|null $cacheKey = null, mixed ...$args)
+ * @method \TestApp\Model\Entity\Post findOrCreate($search, ?callable $callback = null, array<string, mixed> $options = [])
+ * @method \TestApp\Model\Entity\Post patchEntity(\Cake\Datasource\EntityInterface $entity, array<string, mixed> $data, array<string, mixed> $options = [])
+ * @method array<\TestApp\Model\Entity\Post> patchEntities(iterable<\Cake\Datasource\EntityInterface> $entities, array<string, mixed> $data, array<string, mixed> $options = [])
+ * @method \TestApp\Model\Entity\Post|false save(\Cake\Datasource\EntityInterface $entity, array<string, mixed> $options = [])
+ * @method \TestApp\Model\Entity\Post saveOrFail(\Cake\Datasource\EntityInterface $entity, array<string, mixed> $options = [])
  */
 class PostsTable extends Table
 {
@@ -43,7 +43,7 @@ class PostsTable extends Table
         $this->belongsTo('Users', [
             'foreignKey' => 'user_id',
             'joinType' => 'INNER',
-            'className' => 'TestApp.Users',
+            'className' => 'Users',
         ]);
     }
 
@@ -91,10 +91,13 @@ class PostsTable extends Table
      */
     public function afterSave(EventInterface $event, $entity, $options): void
     {
+        /** @var \TestApp\Model\Entity\Post $entity */
         if ($entity->published && $entity->isDirty('published')) {
-            $user = $this->Users->get($entity->user_id);
+            /** @var \TestApp\Model\Table\UsersTable $usersTable */
+            $usersTable = $this->Users->getTarget();
+            $user = $usersTable->get($entity->user_id);
 
-            $this->Users->notify($user, new PostPublished($entity->id, $entity->title));
+            $usersTable->notify($user, new PostPublished($entity->id, $entity->title));
         }
     }
 }

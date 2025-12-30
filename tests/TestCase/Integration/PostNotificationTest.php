@@ -5,6 +5,8 @@ namespace Crustum\Notification\Test\TestCase\Integration;
 
 use Cake\TestSuite\TestCase;
 use Crustum\Notification\TestSuite\NotificationTrait;
+use TestApp\Model\Table\PostsTable;
+use TestApp\Model\Table\UsersTable;
 use TestApp\Notification\PostPublished;
 
 /**
@@ -17,6 +19,10 @@ use TestApp\Notification\PostPublished;
 class PostNotificationTest extends TestCase
 {
     use NotificationTrait;
+
+    protected PostsTable $Posts;
+
+    protected UsersTable $Users;
 
     /**
      * Fixtures
@@ -37,6 +43,12 @@ class PostNotificationTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+        /** @var \TestApp\Model\Table\PostsTable $postsTable */
+        $postsTable = $this->getTableLocator()->get('Posts');
+        $this->Posts = $postsTable;
+        /** @var \TestApp\Model\Table\UsersTable $usersTable */
+        $usersTable = $this->getTableLocator()->get('Users');
+        $this->Users = $usersTable;
     }
 
     /**
@@ -46,14 +58,11 @@ class PostNotificationTest extends TestCase
      */
     public function testNotificationSentWhenPostPublished(): void
     {
-        $postsTable = $this->getTableLocator()->get('TestApp.Posts');
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-
-        $post = $postsTable->get(1);
-        $user = $usersTable->get($post->user_id);
+        $post = $this->Posts->get(1);
+        $user = $this->Users->get($post->user_id);
 
         $post->published = true;
-        $postsTable->save($post);
+        $this->Posts->save($post);
 
         $this->assertNotificationSentTo($user, PostPublished::class);
         $this->assertNotificationCount(1);
@@ -66,11 +75,10 @@ class PostNotificationTest extends TestCase
      */
     public function testNotificationNotSentWhenPostNotPublished(): void
     {
-        $postsTable = $this->getTableLocator()->get('TestApp.Posts');
-        $post = $postsTable->get(1);
+        $post = $this->Posts->get(1);
 
         $post->title = 'Updated Title';
-        $postsTable->save($post);
+        $this->Posts->save($post);
 
         $this->assertNoNotificationsSent();
     }
@@ -82,11 +90,10 @@ class PostNotificationTest extends TestCase
      */
     public function testNotificationContainsPostData(): void
     {
-        $postsTable = $this->getTableLocator()->get('TestApp.Posts');
-        $post = $postsTable->get(1);
+        $post = $this->Posts->get(1);
 
         $post->published = true;
-        $postsTable->save($post);
+        $this->Posts->save($post);
 
         $this->assertNotificationDataContains(PostPublished::class, 'post_id', 1);
         $this->assertNotificationDataContains(PostPublished::class, 'post_title', 'First Post');
@@ -99,15 +106,12 @@ class PostNotificationTest extends TestCase
      */
     public function testNotificationSentToPostOwner(): void
     {
-        $postsTable = $this->getTableLocator()->get('TestApp.Posts');
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-
-        $post = $postsTable->get(1);
-        $owner = $usersTable->get($post->user_id);
-        $otherUser = $usersTable->get(2);
+        $post = $this->Posts->get(1);
+        $owner = $this->Users->get($post->user_id);
+        $otherUser = $this->Users->get(2);
 
         $post->published = true;
-        $postsTable->save($post);
+        $this->Posts->save($post);
 
         $this->assertNotificationSentTo($owner, PostPublished::class);
         $this->assertNotificationNotSentTo($otherUser, PostPublished::class);
@@ -120,11 +124,10 @@ class PostNotificationTest extends TestCase
      */
     public function testNotificationSentThroughCorrectChannels(): void
     {
-        $postsTable = $this->getTableLocator()->get('TestApp.Posts');
-        $post = $postsTable->get(1);
+        $post = $this->Posts->get(1);
 
         $post->published = true;
-        $postsTable->save($post);
+        $this->Posts->save($post);
 
         $this->assertNotificationSentToChannel('database', PostPublished::class);
         $this->assertNotificationSentToChannel('mail', PostPublished::class);
@@ -137,15 +140,14 @@ class PostNotificationTest extends TestCase
      */
     public function testMultiplePostPublishSendsMultipleNotifications(): void
     {
-        $postsTable = $this->getTableLocator()->get('TestApp.Posts');
-        $post1 = $postsTable->get(1);
-        $post3 = $postsTable->get(3);
+        $post1 = $this->Posts->get(1);
+        $post3 = $this->Posts->get(3);
 
         $post1->published = true;
-        $postsTable->save($post1);
+        $this->Posts->save($post1);
 
         $post3->published = true;
-        $postsTable->save($post3);
+        $this->Posts->save($post3);
 
         $this->assertNotificationSentTimes(PostPublished::class, 2);
     }

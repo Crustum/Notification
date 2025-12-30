@@ -68,6 +68,7 @@ class ChannelRegistryTest extends TestCase
         EventManager::instance()->on(
             'Notification.Registry.discover',
             function (Event $event): void {
+                /** @var \Crustum\Notification\Registry\ChannelRegistry $registry */
                 $registry = $event->getSubject();
                 $registry->load('test', [
                     'className' => 'Crustum\Notification\Channel\DatabaseChannel',

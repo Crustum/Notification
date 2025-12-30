@@ -39,14 +39,16 @@ class PostsController extends Controller
         $postId = (int)($id ?? $this->request->getData('id'));
         $post = $this->Posts->get($postId, ['contain' => ['Users']]);
         $post->published = true;
+        /** @var \TestApp\Model\Table\UsersTable $UsersTable */
+        $UsersTable = $this->Posts->Users;
 
         if ($this->Posts->save($post)) {
             $user = $post->user;
-            $this->Posts->Users->notify($user, new PostPublished($post->id, $post->title));
+            $UsersTable->notify($user, new PostPublished($post->id, $post->title));
 
             return $this->response
                 ->withType('application/json')
-                ->withStringBody(json_encode([
+                ->withStringBody((string)json_encode([
                     'success' => true,
                     'post_id' => $post->id,
                 ]));
@@ -55,7 +57,7 @@ class PostsController extends Controller
         return $this->response
             ->withType('application/json')
             ->withStatus(400)
-            ->withStringBody(json_encode(['success' => false]));
+            ->withStringBody((string)json_encode(['success' => false]));
     }
 
     /**
@@ -71,11 +73,14 @@ class PostsController extends Controller
         $postId = (int)$this->request->getData('post_id', 1);
         $title = $this->request->getData('title', 'Test Post');
 
-        $user = $this->Posts->Users->get($userId);
-        $this->Posts->Users->notify($user, new PostPublished($postId, $title));
+        /** @var \TestApp\Model\Table\UsersTable $UsersTable */
+        $UsersTable = $this->Posts->Users;
+
+        $user = $UsersTable->get($userId);
+        $UsersTable->notify($user, new PostPublished($postId, $title));
 
         return $this->response
             ->withType('application/json')
-            ->withStringBody(json_encode(['success' => true]));
+            ->withStringBody((string)json_encode(['success' => true]));
     }
 }

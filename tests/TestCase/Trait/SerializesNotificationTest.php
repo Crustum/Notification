@@ -31,7 +31,6 @@ class SerializesNotificationTest extends TestCase
 
         $data = $notification->__serialize();
 
-        $this->assertIsArray($data);
         $this->assertArrayHasKey('__class__', $data);
         $this->assertStringContainsString('TestNotificationWithScalars', $data['__class__']);
     }
@@ -64,7 +63,6 @@ class SerializesNotificationTest extends TestCase
 
         $data = $notification->__serialize();
 
-        $this->assertIsArray($data);
         $this->assertArrayHasKey('__class__', $data);
     }
 
@@ -80,7 +78,6 @@ class SerializesNotificationTest extends TestCase
 
         $data = $notification->__serialize();
 
-        $this->assertIsArray($data);
         $this->assertArrayHasKey('__class__', $data);
     }
 
@@ -98,7 +95,6 @@ class SerializesNotificationTest extends TestCase
 
         $data = $notification->__serialize();
 
-        $this->assertIsArray($data);
         $this->assertArrayHasKey('__class__', $data);
     }
 
@@ -134,7 +130,6 @@ class SerializesNotificationTest extends TestCase
 
         $data = $notification->__serialize();
 
-        $this->assertIsArray($data);
         $this->assertArrayHasKey('__class__', $data);
     }
 

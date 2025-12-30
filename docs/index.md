@@ -92,16 +92,19 @@ bin/cake bake notification InvoicePaid --channels database,mail,slack
 <a name="using-the-notifiable-behavior"></a>
 ### Using the Notifiable Behavior
 
-Notifications may be sent in two ways: using the `notify()` method provided by the `NotifiableBehavior` or using the `NotificationManager`. The `NotifiableBehavior` must be added to your Table class:
+Notifications may be sent in two ways: using the `notify()` method provided by the `NotifiableTrait` or using the `NotificationManager`. To enable notifications on a table, you must use both the `NotifiableTrait` and add the `NotifiableBehavior`:
 
 ```php
 <?php
 namespace App\Model\Table;
 
 use Cake\ORM\Table;
+use Crustum\Notification\Model\Trait\NotifiableTrait;
 
 class UsersTable extends Table
 {
+    use NotifiableTrait;
+
     public function initialize(array $config): void
     {
         parent::initialize($config);
@@ -111,7 +114,7 @@ class UsersTable extends Table
 }
 ```
 
-The `notify()` method that is provided by this behavior is called on the table and receives the entity and notification instance:
+The `notify()` method that is provided by the trait is called on the table and receives the entity and notification instance:
 
 ```php
 use App\Notification\InvoicePaid;
@@ -122,7 +125,8 @@ $user = $usersTable->get(1);
 $usersTable->notify($user, new InvoicePaid($invoice));
 ```
 
-> **Note:** You may add the `Notifiable` behavior to any of your tables. You are not limited to only including it on your `Users` table.
+> [!NOTE]
+> You may add the `NotifiableTrait` and `NotifiableBehavior` to any of your tables. You are not limited to only including it on your `Users` table.
 
 <a name="using-the-notificationmanager"></a>
 ### Using the NotificationManager

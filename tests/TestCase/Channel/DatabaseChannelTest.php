@@ -37,6 +37,7 @@ class DatabaseChannelTest extends TestCase
         $entity = new Entity(['id' => 99]);
         $entity->setSource('Users');
 
+        /** @var \Crustum\Notification\Model\Entity\Notification $result */
         $result = $channel->send($entity, $notification);
 
         $this->assertNotFalse($result);

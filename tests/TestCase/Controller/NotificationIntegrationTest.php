@@ -47,7 +47,7 @@ class NotificationIntegrationTest extends TestCase
 
         $this->assertNotificationSent(PostPublished::class);
 
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
+        $usersTable = $this->getTableLocator()->get('Users');
         $user = $usersTable->get(1);
 
         $this->assertNotificationSentTo($user, PostPublished::class);

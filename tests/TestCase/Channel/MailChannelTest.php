@@ -51,7 +51,6 @@ class MailChannelTest extends TestCase
      */
     protected function tearDown(): void
     {
-        unset($this->channel);
         TransportFactory::drop('test');
 
         parent::tearDown();

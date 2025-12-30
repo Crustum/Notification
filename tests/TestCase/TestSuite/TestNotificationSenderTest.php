@@ -6,6 +6,7 @@ namespace Crustum\Notification\Test\TestCase\TestSuite;
 use Cake\TestSuite\TestCase;
 use Crustum\Notification\NotificationManager;
 use Crustum\Notification\TestSuite\TestNotificationSender;
+use TestApp\Model\Table\UsersTable;
 use TestApp\Notification\PostPublished;
 
 /**
@@ -28,6 +29,8 @@ class TestNotificationSenderTest extends TestCase
         'plugin.Crustum/Notification.Notifications',
     ];
 
+    protected UsersTable $Users;
+
     /**
      * Test setup
      *
@@ -38,6 +41,9 @@ class TestNotificationSenderTest extends TestCase
         parent::setUp();
         TestNotificationSender::replaceAllSenders();
         TestNotificationSender::clearNotifications();
+        /** @var \TestApp\Model\Table\UsersTable $usersTable */
+        $usersTable = $this->getTableLocator()->get('Users');
+        $this->Users = $usersTable;
     }
 
     /**
@@ -72,10 +78,9 @@ class TestNotificationSenderTest extends TestCase
      */
     public function testSendCapturesNotification(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
-        $usersTable->notify($user, new PostPublished(1, 'Test'));
+        $this->Users->notify($user, new PostPublished(1, 'Test'));
 
         $notifications = TestNotificationSender::getNotifications();
 
@@ -90,8 +95,7 @@ class TestNotificationSenderTest extends TestCase
      */
     public function testSendNowCapturesNotification(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
         NotificationManager::sendNow($user, new PostPublished(1, 'Test'));
 
@@ -108,10 +112,9 @@ class TestNotificationSenderTest extends TestCase
      */
     public function testClearNotifications(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
-        $usersTable->notify($user, new PostPublished(1, 'Test'));
+        $this->Users->notify($user, new PostPublished(1, 'Test'));
 
         $this->assertCount(1, TestNotificationSender::getNotifications());
 
@@ -127,12 +130,11 @@ class TestNotificationSenderTest extends TestCase
      */
     public function testGetNotificationsFor(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user1 = $usersTable->get(1);
-        $user2 = $usersTable->get(2);
+        $user1 = $this->Users->get(1);
+        $user2 = $this->Users->get(2);
 
-        $usersTable->notify($user1, new PostPublished(1, 'Test'));
-        $usersTable->notify($user2, new PostPublished(2, 'Test'));
+        $this->Users->notify($user1, new PostPublished(1, 'Test'));
+        $this->Users->notify($user2, new PostPublished(2, 'Test'));
 
         $user1Notifications = TestNotificationSender::getNotificationsFor($user1, PostPublished::class);
         $user2Notifications = TestNotificationSender::getNotificationsFor($user2, PostPublished::class);
@@ -148,10 +150,9 @@ class TestNotificationSenderTest extends TestCase
      */
     public function testGetNotificationsByChannel(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
-        $usersTable->notify($user, new PostPublished(1, 'Test'));
+        $this->Users->notify($user, new PostPublished(1, 'Test'));
 
         $databaseNotifications = TestNotificationSender::getNotificationsByChannel('database');
         $mailNotifications = TestNotificationSender::getNotificationsByChannel('mail');
@@ -167,11 +168,10 @@ class TestNotificationSenderTest extends TestCase
      */
     public function testGetNotificationsByClass(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
 
-        $usersTable->notify($user, new PostPublished(1, 'Test'));
-        $usersTable->notify($user, new PostPublished(2, 'Test'));
+        $this->Users->notify($user, new PostPublished(1, 'Test'));
+        $this->Users->notify($user, new PostPublished(2, 'Test'));
 
         $notifications = TestNotificationSender::getNotificationsByClass(PostPublished::class);
 
@@ -185,11 +185,10 @@ class TestNotificationSenderTest extends TestCase
      */
     public function testGetOnDemandNotifications(): void
     {
-        $usersTable = $this->getTableLocator()->get('TestApp.Users');
-        $user = $usersTable->get(1);
+        $user = $this->Users->get(1);
         $anonymous = NotificationManager::route('mail', 'admin@example.com');
 
-        $usersTable->notify($user, new PostPublished(1, 'Test'));
+        $this->Users->notify($user, new PostPublished(1, 'Test'));
         $anonymous->notify(new PostPublished(2, 'Admin Post'));
 
         $onDemandNotifications = TestNotificationSender::getOnDemandNotifications();

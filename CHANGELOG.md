@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0]
+
+### Added
+
+- `NotifiableTrait` for providing notification methods on table classes
+
+### Changed
+
+- **BREAKING**: Refactored `NotifiableBehavior` - notification methods moved to `NotifiableTrait`
+  - Behavior now only creates the `Notifications` association
+  - Table classes must use both `NotifiableTrait` and `NotifiableBehavior`
+  - See updated documentation for migration guide
+
 ## [1.0.1]
 
 ### Added

@@ -24,8 +24,8 @@ class ChannelProviderInterfaceTest extends TestCase
         $provider = new MockChannelProvider();
 
         $this->assertInstanceOf(ChannelProviderInterface::class, $provider);
-        $this->assertIsArray($provider->provides());
-        $this->assertIsArray($provider->getDefaultConfig());
+        $this->assertArrayHasKey(0, $provider->provides());
+        $this->assertArrayHasKey('timeout', $provider->getDefaultConfig());
     }
 
     /**
@@ -68,7 +68,6 @@ class ChannelProviderInterfaceTest extends TestCase
 
         $config = $provider->getDefaultConfig();
 
-        $this->assertIsArray($config);
         $this->assertArrayHasKey('timeout', $config);
     }
 }

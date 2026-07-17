@@ -259,7 +259,7 @@ class NotificationManager
         $class = static::$_senderClass ?? NotificationSender::class;
 
         if (
-            !static::$_sender instanceof \Crustum\Notification\NotificationSender
+            !static::$_sender instanceof NotificationSender
             || !(static::$_sender instanceof $class)
             || static::$_senderLocale !== $locale
         ) {

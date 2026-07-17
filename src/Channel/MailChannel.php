@@ -72,6 +72,7 @@ class MailChannel implements ChannelInterface
                 if (is_string($route)) {
                     return [$route];
                 }
+
                 if (is_array($route)) {
                     $recipients = [];
                     foreach ($route as $email => $name) {

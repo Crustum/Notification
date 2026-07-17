@@ -59,7 +59,7 @@ final class TestNotificationSender extends NotificationSender
                 continue;
             }
 
-            static::$notifications[] = [
+            self::$notifications[] = [
                 'notifiable' => $notifiable,
                 'notifiable_class' => $notifiable::class,
                 'notifiable_id' => $this->getNotifiableKey($notifiable),
@@ -94,7 +94,7 @@ final class TestNotificationSender extends NotificationSender
                 continue;
             }
 
-            static::$notifications[] = [
+            self::$notifications[] = [
                 'notifiable' => $notifiable,
                 'notifiable_class' => $notifiable::class,
                 'notifiable_id' => $this->getNotifiableKey($notifiable),
@@ -117,7 +117,7 @@ final class TestNotificationSender extends NotificationSender
      */
     public static function replaceAllSenders(): void
     {
-        NotificationManager::configureSender(static::class);
+        NotificationManager::configureSender(self::class);
     }
 
     /**
@@ -127,7 +127,7 @@ final class TestNotificationSender extends NotificationSender
      */
     public static function getNotifications(): array
     {
-        return static::$notifications;
+        return self::$notifications;
     }
 
     /**
@@ -137,7 +137,7 @@ final class TestNotificationSender extends NotificationSender
      */
     public static function clearNotifications(): void
     {
-        static::$notifications = [];
+        self::$notifications = [];
     }
 
     /**
@@ -183,10 +183,10 @@ final class TestNotificationSender extends NotificationSender
     public static function getNotificationsFor(object $notifiable, string $notificationClass): array
     {
         $notifiableClass = $notifiable::class;
-        $notifiableId = (new static())->getNotifiableKey($notifiable);
+        $notifiableId = (new self())->getNotifiableKey($notifiable);
 
         return array_filter(
-            static::$notifications,
+            self::$notifications,
             fn(array $n): bool => $n['notifiable_class'] === $notifiableClass &&
                 $n['notifiable_id'] === $notifiableId &&
                 $n['notification_class'] === $notificationClass,
@@ -202,7 +202,7 @@ final class TestNotificationSender extends NotificationSender
     public static function getNotificationsByChannel(string $channel): array
     {
         return array_filter(
-            static::$notifications,
+            self::$notifications,
             fn(array $n): bool => in_array($channel, $n['channels']),
         );
     }
@@ -216,7 +216,7 @@ final class TestNotificationSender extends NotificationSender
     public static function getNotificationsByClass(string $notificationClass): array
     {
         return array_filter(
-            static::$notifications,
+            self::$notifications,
             fn(array $n): bool => $n['notification_class'] === $notificationClass,
         );
     }
@@ -229,7 +229,7 @@ final class TestNotificationSender extends NotificationSender
     public static function getOnDemandNotifications(): array
     {
         return array_filter(
-            static::$notifications,
+            self::$notifications,
             fn(array $n): bool => $n['notifiable'] instanceof AnonymousNotifiable,
         );
     }

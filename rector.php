@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 use Rector\CodingStyle\Rector\Encapsed\EncapsedStringsToSprintfRector;
+use Rector\CodeQuality\Rector\Isset_\IssetOnPropertyObjectToPropertyExistsRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\For_\RemoveDeadIfForeachForRector;
 use Rector\DeadCode\Rector\For_\RemoveDeadLoopRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessUnionReturnDocblockRector;
 use Rector\DeadCode\Rector\Property\RemoveUselessVarTagRector;
+use Rector\Php70\Rector\StmtsAwareInterface\IfIssetToCoalescingRector;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
@@ -42,6 +44,10 @@ return RectorConfig::configure()
         RemoveUselessUnionReturnDocblockRector::class,
         // Skipped for now to keep the diff focused (no declare(strict_types=1) churn).
         SafeDeclareStrictTypesRector::class,
+        // Cake Entity fields are not real properties; property_exists() is false while isset($entity->field) works.
+        IssetOnPropertyObjectToPropertyExistsRector::class,
+        // Rewrites isset/return fallbacks into ?? chains; keep explicit isset for readable entity/array access.
+        IfIssetToCoalescingRector::class,
         // TablePropertyToTableAttributeRector::class,
     ])
     ->withPreparedSets(

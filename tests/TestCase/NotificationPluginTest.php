@@ -135,6 +135,7 @@ class NotificationPluginTest extends TestCase
                 $hasBootstrap = true;
                 break;
             }
+
             if (isset($item['tag']) && $item['tag'] === 'bootstrap') {
                 $hasBootstrap = true;
                 break;
@@ -159,6 +160,7 @@ class NotificationPluginTest extends TestCase
                 $hasStarRepo = true;
                 break;
             }
+
             if (isset($item['repo']) && str_contains($item['repo'], 'Crustum/Notification')) {
                 $hasStarRepo = true;
                 break;

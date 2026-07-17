@@ -160,9 +160,11 @@ class NotificationsHelper extends Helper
             if ($key === 'message') {
                 continue;
             }
+
             if ($key === 'title') {
                 continue;
             }
+
             $label = __(ucfirst(str_replace('_', ' ', $key)));
             $output .= sprintf(
                 '<dt>%s</dt><dd>%s</dd>',

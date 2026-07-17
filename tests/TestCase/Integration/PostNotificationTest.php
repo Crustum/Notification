@@ -40,7 +40,7 @@ class PostNotificationTest extends TestCase
      *
      * @return void
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         /** @var \TestApp\Model\Table\PostsTable $postsTable */
@@ -78,6 +78,7 @@ class PostNotificationTest extends TestCase
         $post = $this->Posts->get(1);
 
         $post->title = 'Updated Title';
+
         $this->Posts->save($post);
 
         $this->assertNoNotificationsSent();
@@ -93,6 +94,7 @@ class PostNotificationTest extends TestCase
         $post = $this->Posts->get(1);
 
         $post->published = true;
+
         $this->Posts->save($post);
 
         $this->assertNotificationDataContains(PostPublished::class, 'post_id', 1);
@@ -127,6 +129,7 @@ class PostNotificationTest extends TestCase
         $post = $this->Posts->get(1);
 
         $post->published = true;
+
         $this->Posts->save($post);
 
         $this->assertNotificationSentToChannel('database', PostPublished::class);

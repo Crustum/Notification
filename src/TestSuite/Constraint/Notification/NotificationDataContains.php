@@ -18,7 +18,7 @@ class NotificationDataContains extends NotificationConstraintBase
      * @param mixed $other Array with 'class', 'key', and 'value' keys
      * @return bool
      */
-    public function matches(mixed $other): bool
+    protected function matches(mixed $other): bool
     {
         $notificationClass = $other['class'];
         $dataKey = $other['key'];
@@ -41,10 +41,8 @@ class NotificationDataContains extends NotificationConstraintBase
                 }
             }
 
-            if (is_object($notification) && property_exists($notification, $dataKey)) {
-                if ($notification->{$dataKey} === $expectedValue) {
-                    return true;
-                }
+            if (is_object($notification) && property_exists($notification, $dataKey) && $notification->{$dataKey} === $expectedValue) {
+                return true;
             }
         }
 

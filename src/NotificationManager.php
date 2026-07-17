@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Crustum\Notification;
 
+use BackedEnum;
 use Cake\Core\StaticConfigTrait;
 use Cake\Datasource\EntityInterface;
 use Crustum\Notification\Channel\ChannelInterface;
@@ -10,6 +11,7 @@ use Crustum\Notification\Channel\DatabaseChannel;
 use Crustum\Notification\Channel\MailChannel;
 use Crustum\Notification\Registry\ChannelRegistry;
 use InvalidArgumentException;
+use UnitEnum;
 
 /**
  * Notification Manager
@@ -57,6 +59,20 @@ class NotificationManager
     protected static ?string $_senderClass = null;
 
     /**
+     * Cached notification sender instance
+     *
+     * @var \Crustum\Notification\NotificationSender|null
+     */
+    protected static ?NotificationSender $_sender = null;
+
+    /**
+     * Locale used when the cached sender was created
+     *
+     * @var string|null
+     */
+    protected static ?string $_senderLocale = null;
+
+    /**
      * Returns the Channel Registry instance used for creating and using channel instances
      *
      * @return \Crustum\Notification\Registry\ChannelRegistry
@@ -87,16 +103,18 @@ class NotificationManager
     /**
      * Get a ChannelInterface object for the named notification channel
      *
-     * Can be called with channel name or class name:
+     * Can be called with channel name, class name, or enum:
      * - NotificationManager::channel('database')
      * - NotificationManager::channel(DatabaseChannel::class)
+     * - NotificationManager::channel(SomeChannelEnum::Database)
      *
-     * @param string $name The name or class name of the notification channel
+     * @param \UnitEnum|string $name The name, class name, or enum of the notification channel
      * @return \Crustum\Notification\Channel\ChannelInterface
      * @throws \InvalidArgumentException When channel configuration is missing
      */
-    public static function channel(string $name): ChannelInterface
+    public static function channel(UnitEnum|string $name): ChannelInterface
     {
+        $name = static::resolveChannelName($name);
         $registry = static::getRegistry();
 
         if (class_exists($name) && is_subclass_of($name, ChannelInterface::class)) {
@@ -162,6 +180,25 @@ class NotificationManager
     }
 
     /**
+     * Resolve a channel name from a string or enum
+     *
+     * @param \UnitEnum|string $name Channel name or enum
+     * @return string Channel name
+     */
+    protected static function resolveChannelName(UnitEnum|string $name): string
+    {
+        if ($name instanceof BackedEnum) {
+            return (string)$name->value;
+        }
+
+        if ($name instanceof UnitEnum) {
+            return $name->name;
+        }
+
+        return $name;
+    }
+
+    /**
      * Get channel name from class name
      *
      * @param string $className Channel class name
@@ -184,6 +221,7 @@ class NotificationManager
     public static function configureSender(string $class): void
     {
         static::$_senderClass = $class;
+        static::clearSenderCache();
     }
 
     /**
@@ -194,10 +232,24 @@ class NotificationManager
     public static function resetSender(): void
     {
         static::$_senderClass = null;
+        static::clearSenderCache();
+    }
+
+    /**
+     * Clear the cached sender instance
+     *
+     * @return void
+     */
+    protected static function clearSenderCache(): void
+    {
+        static::$_sender = null;
+        static::$_senderLocale = null;
     }
 
     /**
      * Get a sender instance
+     *
+     * Reuses a single sender instance while the class and locale stay unchanged.
      *
      * @param string|null $locale Locale for notifications
      * @return \Crustum\Notification\NotificationSender
@@ -206,7 +258,16 @@ class NotificationManager
     {
         $class = static::$_senderClass ?? NotificationSender::class;
 
-        return new $class($locale);
+        if (
+            static::$_sender === null
+            || !(static::$_sender instanceof $class)
+            || static::$_senderLocale !== $locale
+        ) {
+            static::$_sender = new $class($locale);
+            static::$_senderLocale = $locale;
+        }
+
+        return static::$_sender;
     }
 
     /**
@@ -243,6 +304,7 @@ class NotificationManager
     public static function locale(string $locale): void
     {
         static::$_locale = $locale;
+        static::clearSenderCache();
     }
 
     /**

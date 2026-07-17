@@ -107,7 +107,7 @@ trait SerializesNotificationTrait
         if (is_object($value) && method_exists($value, 'toArray')) {
             return [
                 '__entity__' => true,
-                'class' => get_class($value),
+                'class' => $value::class,
                 'data' => $value->toArray(),
             ];
         }

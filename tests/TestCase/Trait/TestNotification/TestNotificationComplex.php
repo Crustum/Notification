@@ -101,8 +101,6 @@ class TestNotificationComplex extends Notification
 
     /**
      * Get post
-     *
-     * @return mixed
      */
     public function getPost(): mixed
     {

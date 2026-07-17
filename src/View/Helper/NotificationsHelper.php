@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Crustum\Notification\View\Helper;
 
-use Cake\ORM\TableRegistry;
+use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\View\Helper;
 use Crustum\Notification\Model\Entity\Notification;
 use Throwable;
@@ -12,9 +12,13 @@ use Throwable;
  * Notifications Helper
  *
  * Helper for rendering and formatting notifications in views
+ *
+ * @uses \Cake\ORM\Locator\LocatorAwareTrait
  */
 class NotificationsHelper extends Helper
 {
+    use LocatorAwareTrait;
+
     /**
      * Helpers
      *
@@ -48,7 +52,7 @@ class NotificationsHelper extends Helper
                 if (method_exists($instance, 'getTitle')) {
                     return $instance->getTitle();
                 }
-            } catch (Throwable $e) {
+            } catch (Throwable) {
             }
         }
 
@@ -80,11 +84,7 @@ class NotificationsHelper extends Helper
             return $notification->data['message'];
         }
 
-        if (isset($notification->data['title'])) {
-            return $notification->data['title'];
-        }
-
-        return __('You have a new notification');
+        return $notification->data['title'] ?? __('You have a new notification');
     }
 
     /**
@@ -96,7 +96,7 @@ class NotificationsHelper extends Helper
      */
     public function getNotificationTypes(): array
     {
-        $notificationsTable = TableRegistry::getTableLocator()->get('Crustum/Notification.Notifications');
+        $notificationsTable = $this->getTableLocator()->get('Crustum/Notification.Notifications');
 
         $types = $notificationsTable->find()
             ->select(['type'])
@@ -108,7 +108,7 @@ class NotificationsHelper extends Helper
 
         $typeMap = [];
         foreach ($types as $type) {
-            $parts = explode('\\', $type);
+            $parts = explode('\\', (string)$type);
             $className = end($parts);
             $label = preg_replace('/(?<!^)[A-Z]/', ' $0', $className);
             $typeMap[$type] = __($label ?: $className);
@@ -136,15 +136,11 @@ class NotificationsHelper extends Helper
                 if (method_exists($instance, 'getIcon')) {
                     return $instance->getIcon();
                 }
-            } catch (Throwable $e) {
+            } catch (Throwable) {
             }
         }
 
-        if (isset($notification->data['icon'])) {
-            return $notification->data['icon'];
-        }
-
-        return 'bell';
+        return $notification->data['icon'] ?? 'bell';
     }
 
     /**
@@ -161,10 +157,12 @@ class NotificationsHelper extends Helper
 
         $output = '<dl class="notification-data">';
         foreach ($notification->data as $key => $value) {
-            if ($key === 'message' || $key === 'title') {
+            if ($key === 'message') {
                 continue;
             }
-
+            if ($key === 'title') {
+                continue;
+            }
             $label = __(ucfirst(str_replace('_', ' ', $key)));
             $output .= sprintf(
                 '<dt>%s</dt><dd>%s</dd>',
@@ -172,8 +170,7 @@ class NotificationsHelper extends Helper
                 h($value),
             );
         }
-        $output .= '</dl>';
 
-        return $output;
+        return $output . '</dl>';
     }
 }

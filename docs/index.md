@@ -251,6 +251,41 @@ class InvoicePaid extends Notification implements ShouldQueueInterface
 }
 ```
 
+You may also override the queue connection or queue name **per channel** by defining optional methods on the notification. Missing map entries fall back to the notification defaults (`onConnection` / `onQueue`):
+
+```php
+public function viaConnections(): array
+{
+    return [
+        'mail' => 'redis',
+    ];
+}
+
+public function viaQueues(): array
+{
+    return [
+        'mail' => 'mail-notifications',
+        'database' => 'database-notifications',
+    ];
+}
+```
+
+#### After Sending Hook
+
+After a channel successfully delivers a notification, you may define an `afterSending` method on the notification class:
+
+```php
+/**
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
+ * @param string $channel
+ * @param mixed $response
+ * @return void
+ */
+public function afterSending(EntityInterface|AnonymousNotifiable $notifiable, string $channel, mixed $response): void
+{
+}
+```
+
 #### Determining if a Queued Notification Should Be Sent
 
 After a queued notification has been dispatched for the queue for background processing, it will typically be accepted by a queue worker and sent to its intended recipient.

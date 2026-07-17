@@ -37,7 +37,6 @@ class CouldNotSendNotification extends Exception
      * Create exception for channel not configured
      *
      * @param string $channel Channel name
-     * @return static
      */
     public static function channelNotConfigured(string $channel): static
     {
@@ -53,11 +52,10 @@ class CouldNotSendNotification extends Exception
      * @param string $channel Channel name
      * @param mixed $response Service response data
      * @param string|null $message Optional custom message
-     * @return static
      */
     public static function serviceRespondedWithError(string $channel, mixed $response, ?string $message = null): static
     {
-        $message = $message ?? "Channel '{$channel}' service responded with an error";
+        $message ??= "Channel '{$channel}' service responded with an error";
         $exception = new static($message); // @phpstan-ignore-line
         $exception->channel = $channel;
         $exception->response = $response;
@@ -70,7 +68,6 @@ class CouldNotSendNotification extends Exception
      *
      * @param string $channel Channel name
      * @param string $credentialName Name of the missing credential
-     * @return static
      */
     public static function missingCredentials(string $channel, string $credentialName): static
     {
@@ -86,7 +83,6 @@ class CouldNotSendNotification extends Exception
      * Create exception for missing routing information
      *
      * @param string $channel Channel name
-     * @return static
      */
     public static function missingRoutingInformation(string $channel): static
     {
@@ -111,8 +107,6 @@ class CouldNotSendNotification extends Exception
 
     /**
      * Get the service response
-     *
-     * @return mixed
      */
     public function getResponse(): mixed
     {

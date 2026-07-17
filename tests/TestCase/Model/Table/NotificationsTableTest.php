@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Crustum\Notification\Test\TestCase\Model\Table;
 
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Crustum\Notification\Model\Table\NotificationsTable;
 
@@ -35,12 +34,12 @@ class NotificationsTableTest extends TestCase
      *
      * @return void
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         /** @var \Crustum\Notification\Model\Table\NotificationsTable $notificationsTable */
-        $notificationsTable = TableRegistry::getTableLocator()->get('Crustum/Notification.Notifications');
+        $notificationsTable = $this->getTableLocator()->get('Crustum/Notification.Notifications');
         $this->Notifications = $notificationsTable;
     }
 
@@ -49,9 +48,9 @@ class NotificationsTableTest extends TestCase
      *
      * @return void
      */
-    public function tearDown(): void
+    protected function tearDown(): void
     {
-        TableRegistry::getTableLocator()->clear();
+        $this->getTableLocator()->clear();
 
         parent::tearDown();
     }
@@ -97,6 +96,7 @@ class NotificationsTableTest extends TestCase
 
         $this->assertCount(2, $results);
         foreach ($results as $notification) {
+            /** @var \Crustum\Notification\Model\Entity\Notification $notification */
             $this->assertEquals('Users', $notification->model);
         }
     }
@@ -117,6 +117,7 @@ class NotificationsTableTest extends TestCase
 
         $this->assertCount(2, $results);
         foreach ($results as $notification) {
+            /** @var \Crustum\Notification\Model\Entity\Notification $notification */
             $this->assertEquals('Users', $notification->model);
             $this->assertEquals('user-uuid-1', $notification->foreign_key);
         }
@@ -129,6 +130,7 @@ class NotificationsTableTest extends TestCase
      */
     public function testMarkAsRead(): void
     {
+        /** @var \Crustum\Notification\Model\Entity\Notification $notification */
         $notification = $this->Notifications->find('unread')->first();
         $this->assertNull($notification->read_at);
 
@@ -147,6 +149,7 @@ class NotificationsTableTest extends TestCase
      */
     public function testMarkAsReadReturnsFalseIfAlreadyRead(): void
     {
+        /** @var \Crustum\Notification\Model\Entity\Notification $notification */
         $notification = $this->Notifications->find('read')->first();
 
         $success = $this->Notifications->markAsRead($notification->id);
@@ -169,6 +172,7 @@ class NotificationsTableTest extends TestCase
         $this->assertGreaterThan(0, $count);
 
         foreach ($ids as $id) {
+            /** @var \Crustum\Notification\Model\Entity\Notification $notification */
             $notification = $this->Notifications->get($id);
             $this->assertNotNull($notification->read_at);
         }
@@ -209,6 +213,7 @@ class NotificationsTableTest extends TestCase
      */
     public function testMarkAsUnread(): void
     {
+        /** @var \Crustum\Notification\Model\Entity\Notification $notification */
         $notification = $this->Notifications->find('read')->first();
         $this->assertNotNull($notification->read_at);
 

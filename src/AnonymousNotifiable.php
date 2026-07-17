@@ -34,10 +34,9 @@ class AnonymousNotifiable
      *
      * @param string $channel Channel name
      * @param mixed $route Routing information (channel name, webhook URL, etc.)
-     * @return $this
      * @throws \InvalidArgumentException When attempting to route database channel
      */
-    public function route(string $channel, mixed $route)
+    public function route(string $channel, mixed $route): static
     {
         if ($channel === 'database') {
             throw new InvalidArgumentException(

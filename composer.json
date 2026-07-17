@@ -22,6 +22,7 @@
         "ratchet/pawl": "^0.4",
         "cakephp/bake": "^3.0",
         "react/http": "^1.7",
+        "rector/rector": "^2.5",
         "cakephp/cakephp-codesniffer": "^5.0"
     },
     "suggest": {

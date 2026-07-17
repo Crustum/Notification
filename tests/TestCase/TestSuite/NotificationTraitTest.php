@@ -6,6 +6,7 @@ namespace Crustum\Notification\Test\TestCase\TestSuite;
 use Cake\TestSuite\TestCase;
 use Crustum\Notification\NotificationManager;
 use Crustum\Notification\TestSuite\NotificationTrait;
+use TestApp\Model\Entity\User;
 use TestApp\Model\Table\UsersTable;
 use TestApp\Notification\AdminAlert;
 use TestApp\Notification\PostPublished;
@@ -40,7 +41,7 @@ class NotificationTraitTest extends TestCase
      *
      * @return void
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         /** @var \TestApp\Model\Table\UsersTable $usersTable */
@@ -399,7 +400,7 @@ class NotificationTraitTest extends TestCase
         $notifications = $this->getNotifications();
         $notification = $notifications[0];
 
-        $this->assertEquals('TestApp\Model\Entity\User', $notification['notifiable_class']);
+        $this->assertEquals(User::class, $notification['notifiable_class']);
         $this->assertEquals('1', $notification['notifiable_id']);
         $this->assertEquals(PostPublished::class, $notification['notification_class']);
         $this->assertIsArray($notification['channels']);

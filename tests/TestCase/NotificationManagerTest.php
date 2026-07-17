@@ -69,6 +69,30 @@ class NotificationManagerTest extends TestCase
     }
 
     /**
+     * Test channel works with backed enums
+     *
+     * @return void
+     */
+    public function testChannelWorksWithBackedEnum(): void
+    {
+        $channel = NotificationManager::channel(TestChannelName::Database);
+
+        $this->assertInstanceOf(DatabaseChannel::class, $channel);
+    }
+
+    /**
+     * Test channel works with unit enums
+     *
+     * @return void
+     */
+    public function testChannelWorksWithUnitEnum(): void
+    {
+        $channel = NotificationManager::channel(TestUnitChannelName::mail);
+
+        $this->assertInstanceOf(MailChannel::class, $channel);
+    }
+
+    /**
      * Test configured returns list of channels
      *
      * @return void
@@ -82,5 +106,47 @@ class NotificationManagerTest extends TestCase
 
         $this->assertContains('database', $configured);
         $this->assertContains('mail', $configured);
+    }
+
+    /**
+     * Test getSender reuses a single instance
+     *
+     * @return void
+     */
+    public function testGetSenderReusesInstance(): void
+    {
+        NotificationManager::resetSender();
+
+        $first = NotificationManager::getSender();
+        $second = NotificationManager::getSender();
+
+        $this->assertSame($first, $second);
+    }
+
+    /**
+     * Test getSender rebuilds when locale changes
+     *
+     * @return void
+     */
+    public function testGetSenderRebuildsWhenLocaleChanges(): void
+    {
+        NotificationManager::resetSender();
+
+        $first = NotificationManager::getSender('en_US');
+        $second = NotificationManager::getSender('fr_FR');
+
+        $this->assertNotSame($first, $second);
+    }
+
+    /**
+     * Tear down static manager state
+     *
+     * @return void
+     */
+    protected function tearDown(): void
+    {
+        NotificationManager::resetSender();
+
+        parent::tearDown();
     }
 }

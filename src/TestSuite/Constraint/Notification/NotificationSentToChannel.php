@@ -18,7 +18,7 @@ class NotificationSentToChannel extends NotificationConstraintBase
      * @param mixed $other Array with 'channel' and 'class' keys
      * @return bool
      */
-    public function matches(mixed $other): bool
+    protected function matches(mixed $other): bool
     {
         $channel = $other['channel'];
         $notificationClass = $other['class'];

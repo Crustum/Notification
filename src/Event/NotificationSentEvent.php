@@ -76,8 +76,6 @@ class NotificationSentEvent extends Event
 
     /**
      * Get the channel response
-     *
-     * @return mixed
      */
     public function getResponse(): mixed
     {

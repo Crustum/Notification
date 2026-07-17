@@ -18,11 +18,11 @@ class NoNotificationSent extends NotificationConstraintBase
      * @param mixed $other Not used
      * @return bool
      */
-    public function matches(mixed $other): bool
+    protected function matches(mixed $other): bool
     {
         $notifications = $this->getNotifications();
 
-        return empty($notifications);
+        return $notifications === [];
     }
 
     /**
@@ -34,7 +34,7 @@ class NoNotificationSent extends NotificationConstraintBase
     {
         $notifications = $this->getNotifications();
 
-        if (!empty($notifications)) {
+        if ($notifications !== []) {
             $classes = array_unique(array_column($notifications, 'notification_class'));
 
             return sprintf(

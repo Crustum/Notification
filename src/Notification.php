@@ -71,6 +71,13 @@ abstract class Notification
     protected ?int $delay = null;
 
     /**
+     * Whether the queued job should ACK when the notifiable entity is missing
+     *
+     * @var bool
+     */
+    protected bool $deleteWhenMissingModels = false;
+
+    /**
      * Get the notification delivery channels
      *
      * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable The entity to notify
@@ -189,6 +196,29 @@ abstract class Notification
     public function getDelay(): ?int
     {
         return $this->delay;
+    }
+
+    /**
+     * Set whether the queued job should ACK when the notifiable entity is missing
+     *
+     * @param bool $value True to drop the job quietly when the notifiable row is gone
+     * @return $this
+     */
+    public function deleteWhenMissingModels(bool $value = true)
+    {
+        $this->deleteWhenMissingModels = $value;
+
+        return $this;
+    }
+
+    /**
+     * Whether the queued job should ACK when the notifiable entity is missing
+     *
+     * @return bool
+     */
+    public function shouldDeleteWhenMissingModels(): bool
+    {
+        return $this->deleteWhenMissingModels;
     }
 
     /**

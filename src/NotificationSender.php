@@ -6,7 +6,7 @@ namespace Crustum\Notification;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventDispatcherTrait;
 use Cake\I18n\I18n;
-use Cake\ORM\TableRegistry;
+use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\Queue\QueueManager;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
@@ -19,10 +19,13 @@ use Throwable;
  *
  * Handles the logic of dispatching notifications to entities through channels.
  * Manages locale switching, event dispatching, and queue/immediate sending logic.
+ *
+ * @uses \Cake\ORM\Locator\LocatorAwareTrait
  */
 class NotificationSender
 {
     use EventDispatcherTrait;
+    use LocatorAwareTrait;
 
     /**
      * Locale for notifications
@@ -53,8 +56,6 @@ class NotificationSender
      */
     public function send(EntityInterface|AnonymousNotifiable|iterable $notifiables, Notification $notification): void
     {
-        $notifiables = $this->formatNotifiables($notifiables);
-
         if ($notification instanceof ShouldQueueInterface) {
             $this->queueNotification($notifiables, $notification);
 
@@ -82,19 +83,19 @@ class NotificationSender
         $original = clone $notification;
 
         foreach ($notifiables as $notifiable) {
-            $viaChannels = $channels ?: $notification->via($notifiable);
+            $viaChannels = $channels ?: $original->via($notifiable);
 
-            if (empty($viaChannels)) {
+            if ($viaChannels === []) {
                 continue;
             }
 
             $this->withLocale(
-                $this->preferredLocale($notifiable, $notification),
+                $this->preferredLocale($notifiable, $original),
                 function () use ($viaChannels, $notifiable, $original): void {
                     $notificationId = Text::uuid();
                     $actualNotificationId = $notificationId;
 
-                    foreach ((array)$viaChannels as $channel) {
+                    foreach ($viaChannels as $channel) {
                         $notificationClone = clone $original;
                         $response = $this->sendToNotifiable($notifiable, $actualNotificationId, $notificationClone, $channel);
 
@@ -114,7 +115,8 @@ class NotificationSender
      * @param string $id Unique notification ID
      * @param \Crustum\Notification\Notification $notification The notification instance
      * @param string $channel The channel name
-     * @return \Crustum\Notification\Model\Entity\Notification|null The saved notification entity, or null if not saved
+     * @return mixed Channel send response, or null when sending was skipped
+     * @throws \Throwable When the channel fails to send the notification
      */
     protected function sendToNotifiable(EntityInterface|AnonymousNotifiable $notifiable, string $id, Notification $notification, string $channel): mixed
     {
@@ -129,25 +131,29 @@ class NotificationSender
         try {
             $channelInstance = NotificationManager::channel($channel);
             $response = $channelInstance->send($notifiable, $notification);
-
-            $this->dispatchEvent('Model.Notification.sent', [
-                'notifiable' => $notifiable,
-                'notification' => $notification,
-                'channel' => $channel,
-                'response' => $response,
-            ],);
-
-            return $response;
-        } catch (Throwable $exception) {
+        } catch (Throwable $throwable) {
             $this->dispatchEvent('Model.Notification.failed', [
                 'notifiable' => $notifiable,
                 'notification' => $notification,
                 'channel' => $channel,
-                'exception' => $exception,
+                'exception' => $throwable,
             ]);
 
-            throw $exception;
+            throw $throwable;
         }
+
+        if (method_exists($notification, 'afterSending')) {
+            $notification->afterSending($notifiable, $channel, $response);
+        }
+
+        $this->dispatchEvent('Model.Notification.sent', [
+            'notifiable' => $notifiable,
+            'notification' => $notification,
+            'channel' => $channel,
+            'response' => $response,
+        ]);
+
+        return $response;
     }
 
     /**
@@ -215,12 +221,19 @@ class NotificationSender
     /**
      * Queue notification instances for later processing
      *
-     * @param iterable<object> $notifiables The entities to notify
+     * Optional per-channel overrides on the notification:
+     * - `viaConnections(): array<string, string>` maps channel → queue config name
+     * - `viaQueues(): array<string, string>` maps channel → queue name
+     *
+     * Missing map entries fall back to the notification's `onConnection` / `onQueue` values.
+     *
+     * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable|iterable<\Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable> $notifiables The entities to notify
      * @param \Crustum\Notification\Notification $notification The notification to queue
      * @return void
      */
-    protected function queueNotification(iterable $notifiables, Notification $notification): void
+    protected function queueNotification(EntityInterface|AnonymousNotifiable|iterable $notifiables, Notification $notification): void
     {
+        $notifiables = $this->formatNotifiables($notifiables);
         $original = clone $notification;
 
         foreach ($notifiables as $notifiable) {
@@ -231,11 +244,11 @@ class NotificationSender
             $notificationId = Text::uuid();
             $viaChannels = $original->via($notifiable);
 
-            if (empty($viaChannels)) {
+            if ($viaChannels === []) {
                 continue;
             }
 
-            foreach ((array)$viaChannels as $channel) {
+            foreach ($viaChannels as $channel) {
                 $queuedNotification = clone $original;
 
                 if (!$queuedNotification->getId()) {
@@ -246,7 +259,7 @@ class NotificationSender
                     $queuedNotification->locale($this->locale);
                 }
 
-                $table = TableRegistry::getTableLocator()->get($notifiable->getSource());
+                $table = $this->getTableLocator()->get($notifiable->getSource());
                 $primaryKeyField = $table->getPrimaryKey();
                 if (is_array($primaryKeyField)) {
                     $primaryKeyField = $primaryKeyField[0];
@@ -259,13 +272,25 @@ class NotificationSender
                     'channels' => [$channel],
                 ];
 
+                $connection = $queuedNotification->getConnection();
+                if (method_exists($queuedNotification, 'viaConnections')) {
+                    $connection = $queuedNotification->viaConnections()[$channel] ?? $connection;
+                }
+
+                $queue = $queuedNotification->getQueue();
+                if (method_exists($queuedNotification, 'viaQueues')) {
+                    $queue = $queuedNotification->viaQueues()[$channel] ?? $queue;
+                }
+
                 $options = [];
-                if ($queuedNotification->getQueue() !== null) {
-                    $options['queue'] = $queuedNotification->getQueue();
+                if ($queue !== null) {
+                    $options['queue'] = $queue;
                 }
-                if ($queuedNotification->getConnection()) {
-                    $options['config'] = $queuedNotification->getConnection();
+
+                if ($connection) {
+                    $options['config'] = $connection;
                 }
+
                 if ($queuedNotification->getDelay()) {
                     $options['delay'] = $queuedNotification->getDelay();
                 }
@@ -323,7 +348,7 @@ class NotificationSender
     public function getRoutingInfo(EntityInterface|AnonymousNotifiable $notifiable, string $channel): mixed
     {
         if ($notifiable instanceof AnonymousNotifiable) {
-            return $notifiable->routeNotificationFor($channel, null);
+            return $notifiable->routeNotificationFor($channel);
         }
 
         $method = 'routeNotificationFor' . Inflector::camelize($channel);

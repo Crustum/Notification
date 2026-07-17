@@ -6,6 +6,7 @@ namespace Crustum\Notification\Test\TestCase\Registry;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\TestSuite\TestCase;
+use Crustum\Notification\Channel\DatabaseChannel;
 use Crustum\Notification\Registry\ChannelRegistry;
 use ReflectionClass;
 
@@ -21,7 +22,7 @@ class ChannelRegistryTest extends TestCase
      *
      * @return void
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -71,7 +72,7 @@ class ChannelRegistryTest extends TestCase
                 /** @var \Crustum\Notification\Registry\ChannelRegistry $registry */
                 $registry = $event->getSubject();
                 $registry->load('test', [
-                    'className' => 'Crustum\Notification\Channel\DatabaseChannel',
+                    'className' => DatabaseChannel::class,
                 ]);
             },
         );

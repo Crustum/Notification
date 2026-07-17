@@ -4,8 +4,9 @@ declare(strict_types=1);
 namespace Crustum\Notification\Job;
 
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Log\Log;
-use Cake\ORM\TableRegistry;
+use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\Queue\Job\JobInterface;
 use Cake\Queue\Job\Message;
 use Crustum\Notification\Notification;
@@ -19,9 +20,13 @@ use Throwable;
  *
  * Handles sending queued notifications from the queue system.
  * Uses JSON serialization to store notification data in queue.
+ *
+ * @uses \Cake\ORM\Locator\LocatorAwareTrait
  */
 class SendQueuedNotificationJob implements JobInterface
 {
+    use LocatorAwareTrait;
+
     /**
      * Execute the queued notification job
      *
@@ -41,25 +46,33 @@ class SendQueuedNotificationJob implements JobInterface
             return Processor::REJECT;
         }
 
+        if (!is_string($serializedNotification)) {
+            Log::error('Invalid notification data: expected serialized string');
+
+            return Processor::REJECT;
+        }
+
         try {
-            $notifiable = $this->loadNotifiable($notifiableModel, $notifiableForeignKey);
-
-            if (!is_string($serializedNotification)) {
-                Log::error('Invalid notification data: expected serialized string');
-
-                return Processor::REJECT;
-            }
-
             $notification = $this->reconstructNotification($serializedNotification);
+
+            try {
+                $notifiable = $this->loadNotifiable($notifiableModel, $notifiableForeignKey);
+            } catch (RecordNotFoundException $exception) {
+                if ($notification->shouldDeleteWhenMissingModels()) {
+                    return Processor::ACK;
+                }
+
+                throw $exception;
+            }
 
             NotificationManager::sendNow($notifiable, $notification, $channels);
 
             return Processor::ACK;
-        } catch (Throwable $e) {
-            Log::error('Notification job failed: ' . $e->getMessage(), [
-                'exception' => $e,
-                'trace' => $e->getTraceAsString(),
-                'notification' => $serializedNotification ?? 'unknown',
+        } catch (Throwable $throwable) {
+            Log::error('Notification job failed: ' . $throwable->getMessage(), [
+                'exception' => $throwable,
+                'trace' => $throwable->getTraceAsString(),
+                'notification' => $serializedNotification,
                 'channels' => $channels ?? [],
             ]);
 
@@ -73,10 +86,11 @@ class SendQueuedNotificationJob implements JobInterface
      * @param string $model Model name (e.g., "Users", "Posts")
      * @param string $foreignKey Primary key value
      * @return \Cake\Datasource\EntityInterface The loaded entity
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When the entity does not exist
      */
     protected function loadNotifiable(string $model, string $foreignKey): EntityInterface
     {
-        $table = TableRegistry::getTableLocator()->get($model);
+        $table = $this->getTableLocator()->get($model);
 
         return $table->get($foreignKey);
     }

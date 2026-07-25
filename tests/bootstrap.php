@@ -21,6 +21,7 @@ $findRoot = function () {
 if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }
+
 define('ROOT', $findRoot());
 define('APP_DIR', 'TestApp');
 define('WEBROOT_DIR', 'webroot');
@@ -108,7 +109,7 @@ Configure::write('Authentication', [
 ]);
 
 Plugin::getCollection()->add(new NotificationPlugin([
-    'path' => dirname(dirname(__FILE__)) . DS,
+    'path' => dirname(__FILE__, 2) . DS,
     'routes' => true,
 ]));
 

@@ -19,9 +19,9 @@ class PostsController extends Controller
      * Before filter callback
      *
      * @param \Cake\Event\EventInterface $event Event
-     * @return \Cake\Http\Response|null|void
+     * @return void
      */
-    public function beforeFilter(EventInterface $event)
+    public function beforeFilter(EventInterface $event): void
     {
         parent::beforeFilter($event);
     }
@@ -32,11 +32,11 @@ class PostsController extends Controller
      * @param int|null $id Post ID
      * @return \Cake\Http\Response
      */
-    public function publish(?int $id = null)
+    public function publish(?int $id = null): Response
     {
-        $this->request->allowMethod(['post', 'put']);
+        $this->getRequest()->allowMethod(['post', 'put']);
 
-        $postId = (int)($id ?? $this->request->getData('id'));
+        $postId = (int)($id ?? $this->getRequest()->getData('id'));
         $post = $this->Posts->get($postId, ['contain' => ['Users']]);
         $post->published = true;
         /** @var \TestApp\Model\Table\UsersTable $UsersTable */
@@ -46,7 +46,7 @@ class PostsController extends Controller
             $user = $post->user;
             $UsersTable->notify($user, new PostPublished($post->id, $post->title));
 
-            return $this->response
+            return $this->getResponse()
                 ->withType('application/json')
                 ->withStringBody((string)json_encode([
                     'success' => true,
@@ -54,7 +54,7 @@ class PostsController extends Controller
                 ]));
         }
 
-        return $this->response
+        return $this->getResponse()
             ->withType('application/json')
             ->withStatus(400)
             ->withStringBody((string)json_encode(['success' => false]));
@@ -67,11 +67,11 @@ class PostsController extends Controller
      */
     public function notify(): Response
     {
-        $this->request->allowMethod(['post']);
+        $this->getRequest()->allowMethod(['post']);
 
-        $userId = $this->request->getData('user_id', 1);
-        $postId = (int)$this->request->getData('post_id', 1);
-        $title = $this->request->getData('title', 'Test Post');
+        $userId = $this->getRequest()->getData('user_id', 1);
+        $postId = (int)$this->getRequest()->getData('post_id', 1);
+        $title = $this->getRequest()->getData('title', 'Test Post');
 
         /** @var \TestApp\Model\Table\UsersTable $UsersTable */
         $UsersTable = $this->Posts->Users;
@@ -79,7 +79,7 @@ class PostsController extends Controller
         $user = $UsersTable->get($userId);
         $UsersTable->notify($user, new PostPublished($postId, $title));
 
-        return $this->response
+        return $this->getResponse()
             ->withType('application/json')
             ->withStringBody((string)json_encode(['success' => true]));
     }

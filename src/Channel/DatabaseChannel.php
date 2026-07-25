@@ -84,16 +84,14 @@ class DatabaseChannel implements ChannelInterface
         $primaryKeyValue = $notifiable->get($primaryKeyName);
         $data = $this->getData($notifiable, $notification);
 
-        $payload = [
+        return [
             'id' => $notification->getId(),
             'model' => $modelName,
             'foreign_key' => (string)$primaryKeyValue,
-            'type' => get_class($notification),
+            'type' => $notification::class,
             'data' => $data,
             'read_at' => null,
         ];
-
-        return $payload;
     }
 
     /**

@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Crustum\Notification\TestSuite;
 
 use Cake\Datasource\EntityInterface;
-use Cake\ORM\TableRegistry;
 use Crustum\Notification\AnonymousNotifiable;
 use Crustum\Notification\Notification;
 use Crustum\Notification\NotificationManager;
@@ -28,8 +27,10 @@ use Crustum\Notification\ShouldQueueInterface;
  * // Make assertions
  * $notifications = TestNotificationSender::getNotifications();
  * ```
+ *
+ * @phpstan-consistent-constructor
  */
-class TestNotificationSender extends NotificationSender
+final class TestNotificationSender extends NotificationSender
 {
     /**
      * Captured notifications
@@ -54,16 +55,16 @@ class TestNotificationSender extends NotificationSender
         foreach ($notifiables as $notifiable) {
             $viaChannels = $notification->via($notifiable);
 
-            if (empty($viaChannels)) {
+            if ($viaChannels === []) {
                 continue;
             }
 
-            static::$notifications[] = [
+            self::$notifications[] = [
                 'notifiable' => $notifiable,
-                'notifiable_class' => get_class($notifiable),
-                'notifiable_id' => static::getNotifiableKey($notifiable),
+                'notifiable_class' => $notifiable::class,
+                'notifiable_id' => $this->getNotifiableKey($notifiable),
                 'notification' => clone $notification,
-                'notification_class' => get_class($notification),
+                'notification_class' => $notification::class,
                 'channels' => $viaChannels,
                 'locale' => $this->locale,
                 'timestamp' => time(),
@@ -89,16 +90,16 @@ class TestNotificationSender extends NotificationSender
         foreach ($notifiables as $notifiable) {
             $viaChannels = $channels ?: $notification->via($notifiable);
 
-            if (empty($viaChannels)) {
+            if ($viaChannels === []) {
                 continue;
             }
 
-            static::$notifications[] = [
+            self::$notifications[] = [
                 'notifiable' => $notifiable,
-                'notifiable_class' => get_class($notifiable),
-                'notifiable_id' => static::getNotifiableKey($notifiable),
+                'notifiable_class' => $notifiable::class,
+                'notifiable_id' => $this->getNotifiableKey($notifiable),
                 'notification' => clone $notification,
-                'notification_class' => get_class($notification),
+                'notification_class' => $notification::class,
                 'channels' => $viaChannels,
                 'locale' => $this->locale,
                 'timestamp' => time(),
@@ -116,7 +117,7 @@ class TestNotificationSender extends NotificationSender
      */
     public static function replaceAllSenders(): void
     {
-        NotificationManager::configureSender(static::class);
+        NotificationManager::configureSender(self::class);
     }
 
     /**
@@ -126,7 +127,7 @@ class TestNotificationSender extends NotificationSender
      */
     public static function getNotifications(): array
     {
-        return static::$notifications;
+        return self::$notifications;
     }
 
     /**
@@ -136,7 +137,7 @@ class TestNotificationSender extends NotificationSender
      */
     public static function clearNotifications(): void
     {
-        static::$notifications = [];
+        self::$notifications = [];
     }
 
     /**
@@ -149,7 +150,7 @@ class TestNotificationSender extends NotificationSender
      * @param object $notifiable The notifiable entity
      * @return string Unique identifier string
      */
-    protected static function getNotifiableKey(object $notifiable): string
+    protected function getNotifiableKey(object $notifiable): string
     {
         if ($notifiable instanceof AnonymousNotifiable) {
             return 'anonymous_' . spl_object_hash($notifiable);
@@ -157,8 +158,8 @@ class TestNotificationSender extends NotificationSender
 
         if ($notifiable instanceof EntityInterface) {
             $source = $notifiable->getSource();
-            if ($source) {
-                $table = TableRegistry::getTableLocator()->get($source);
+            if ($source !== '' && $source !== '0') {
+                $table = $this->getTableLocator()->get($source);
                 $primaryKey = $table->getPrimaryKey();
 
                 if (is_array($primaryKey)) {
@@ -181,12 +182,12 @@ class TestNotificationSender extends NotificationSender
      */
     public static function getNotificationsFor(object $notifiable, string $notificationClass): array
     {
-        $notifiableClass = get_class($notifiable);
-        $notifiableId = static::getNotifiableKey($notifiable);
+        $notifiableClass = $notifiable::class;
+        $notifiableId = (new self())->getNotifiableKey($notifiable);
 
         return array_filter(
-            static::$notifications,
-            fn($n) => $n['notifiable_class'] === $notifiableClass &&
+            self::$notifications,
+            fn(array $n): bool => $n['notifiable_class'] === $notifiableClass &&
                 $n['notifiable_id'] === $notifiableId &&
                 $n['notification_class'] === $notificationClass,
         );
@@ -201,8 +202,8 @@ class TestNotificationSender extends NotificationSender
     public static function getNotificationsByChannel(string $channel): array
     {
         return array_filter(
-            static::$notifications,
-            fn($n) => in_array($channel, $n['channels']),
+            self::$notifications,
+            fn(array $n): bool => in_array($channel, $n['channels']),
         );
     }
 
@@ -215,8 +216,8 @@ class TestNotificationSender extends NotificationSender
     public static function getNotificationsByClass(string $notificationClass): array
     {
         return array_filter(
-            static::$notifications,
-            fn($n) => $n['notification_class'] === $notificationClass,
+            self::$notifications,
+            fn(array $n): bool => $n['notification_class'] === $notificationClass,
         );
     }
 
@@ -228,8 +229,8 @@ class TestNotificationSender extends NotificationSender
     public static function getOnDemandNotifications(): array
     {
         return array_filter(
-            static::$notifications,
-            fn($n) => $n['notifiable'] instanceof AnonymousNotifiable,
+            self::$notifications,
+            fn(array $n): bool => $n['notifiable'] instanceof AnonymousNotifiable,
         );
     }
 }

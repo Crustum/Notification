@@ -37,7 +37,7 @@ class PostsFixture extends TestFixture
         [
             'id' => 3,
             'user_id' => 2,
-            'title' => 'Jane\'s Post',
+            'title' => "Jane's Post",
             'content' => 'Post by Jane',
             'published' => false,
             'created' => '2025-01-03 12:00:00',

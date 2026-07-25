@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Crustum\Notification\Test\TestCase\Job;
 
 use Cake\Datasource\EntityInterface;
-use Cake\ORM\TableRegistry;
 use Cake\Queue\Job\Message;
 use Cake\TestSuite\TestCase;
 use Crustum\Notification\Channel\DatabaseChannel;
@@ -61,7 +60,7 @@ class SendQueuedNotificationJobTest extends TestCase
     protected function tearDown(): void
     {
         NotificationManager::drop('database');
-        TableRegistry::getTableLocator()->clear();
+        $this->getTableLocator()->clear();
 
         parent::tearDown();
     }
@@ -87,7 +86,7 @@ class SendQueuedNotificationJobTest extends TestCase
 
         $this->assertEquals(Processor::ACK, $result);
 
-        $notificationsTable = TableRegistry::getTableLocator()->get('Crustum/Notification.Notifications');
+        $notificationsTable = $this->getTableLocator()->get('Crustum/Notification.Notifications');
         $count = $notificationsTable->find()
             ->where([
                 'model' => 'Users',
@@ -203,6 +202,28 @@ class SendQueuedNotificationJobTest extends TestCase
     }
 
     /**
+     * Test execute ACKs when notifiable is missing and deleteWhenMissingModels is enabled
+     *
+     * @return void
+     */
+    public function testExecuteAcksWhenMissingNotifiableAndDeleteWhenMissingModels(): void
+    {
+        $notification = (new TestJobNotification('Test Title'))->deleteWhenMissingModels();
+        $serialized = serialize($notification);
+
+        $message = $this->createMessage([
+            'notifiableModel' => 'Users',
+            'notifiableForeignKey' => '999999',
+            'notification' => $serialized,
+            'channels' => ['database'],
+        ]);
+
+        $result = $this->job->execute($message);
+
+        $this->assertEquals(Processor::ACK, $result);
+    }
+
+    /**
      * Test serialization preserves notification properties
      *
      * @return void
@@ -252,9 +273,7 @@ class SendQueuedNotificationJobTest extends TestCase
         $message = $this->createStub(Message::class);
 
         $message->method('getArgument')
-            ->willReturnCallback(function ($key) use ($arguments) {
-                return $arguments[$key] ?? null;
-            });
+            ->willReturnCallback(fn($key) => $arguments[$key] ?? null);
 
         return $message;
     }
@@ -268,7 +287,7 @@ class SendQueuedNotificationJobTest extends TestCase
      */
     protected function loadNotifiable(string $model, string $foreignKey): EntityInterface
     {
-        $table = TableRegistry::getTableLocator()->get($model);
+        $table = $this->getTableLocator()->get($model);
 
         return $table->get($foreignKey);
     }

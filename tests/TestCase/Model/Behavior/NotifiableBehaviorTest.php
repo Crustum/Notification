@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Crustum\Notification\Test\TestCase\Model\Behavior;
 
 use Cake\ORM\Association\HasMany;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -30,7 +29,7 @@ class NotifiableBehaviorTest extends TestCase
      */
     public function testCreatesNotificationsAssociation(): void
     {
-        $table = TableRegistry::getTableLocator()->get('Users');
+        $table = $this->getTableLocator()->get('Users');
         $table->addBehavior('Crustum/Notification.Notifiable');
 
         $this->assertTrue($table->hasAssociation('Notifications'));
@@ -48,7 +47,7 @@ class NotifiableBehaviorTest extends TestCase
      */
     public function testAssociationHasModelCondition(): void
     {
-        $table = TableRegistry::getTableLocator()->get('Users');
+        $table = $this->getTableLocator()->get('Users');
         $table->addBehavior('Crustum/Notification.Notifiable');
 
         $association = $table->getAssociation('Notifications');
@@ -66,7 +65,7 @@ class NotifiableBehaviorTest extends TestCase
      */
     public function testBehaviorNoLongerImplementsMethods(): void
     {
-        $table = TableRegistry::getTableLocator()->get('Users');
+        $table = $this->getTableLocator()->get('Users');
         $table->addBehavior('Crustum/Notification.Notifiable');
 
         $behavior = $table->getBehavior('Notifiable');
@@ -83,7 +82,7 @@ class NotifiableBehaviorTest extends TestCase
     public function testRouteNotificationForDatabase(): void
     {
         /** @var \TestApp\Model\Table\UsersTable $table */
-        $table = TableRegistry::getTableLocator()->get('Users');
+        $table = $this->getTableLocator()->get('Users');
         $table->addBehavior('Crustum/Notification.Notifiable');
 
         $user = $table->newEntity(['id' => 1, 'username' => 'test']);

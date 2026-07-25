@@ -18,7 +18,7 @@ class NotificationCount extends NotificationConstraintBase
      * @param mixed $other Expected count
      * @return bool
      */
-    public function matches(mixed $other): bool
+    protected function matches(mixed $other): bool
     {
         $expectedCount = $other;
         $notifications = $this->getNotifications();

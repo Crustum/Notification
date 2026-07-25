@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Crustum\Notification\TestSuite\Constraint\Notification;
 
 use Cake\Datasource\EntityInterface;
-use Cake\ORM\TableRegistry;
+use Cake\ORM\Locator\LocatorAwareTrait;
 use Crustum\Notification\AnonymousNotifiable;
 
 /**
@@ -13,22 +13,25 @@ use Crustum\Notification\AnonymousNotifiable;
  * Asserts that a notification was sent to a specific notifiable entity
  *
  * @internal
+ * @uses \Cake\ORM\Locator\LocatorAwareTrait
  */
 class NotificationSentTo extends NotificationConstraintBase
 {
+    use LocatorAwareTrait;
+
     /**
      * Checks if notification was sent to the notifiable
      *
      * @param mixed $other Array with 'notifiable' and 'class' keys
      * @return bool
      */
-    public function matches(mixed $other): bool
+    protected function matches(mixed $other): bool
     {
         $notifiable = $other['notifiable'];
         $notificationClass = $other['class'];
 
-        $notifiableClass = get_class($notifiable);
-        $notifiableId = static::getNotifiableKey($notifiable);
+        $notifiableClass = $notifiable::class;
+        $notifiableId = $this->getNotifiableKey($notifiable);
 
         $notifications = $this->getNotifications();
 
@@ -51,7 +54,7 @@ class NotificationSentTo extends NotificationConstraintBase
      * @param object $notifiable The notifiable
      * @return string
      */
-    protected static function getNotifiableKey(object $notifiable): string
+    protected function getNotifiableKey(object $notifiable): string
     {
         if ($notifiable instanceof AnonymousNotifiable) {
             return 'anonymous_' . spl_object_hash($notifiable);
@@ -59,8 +62,8 @@ class NotificationSentTo extends NotificationConstraintBase
 
         if ($notifiable instanceof EntityInterface) {
             $source = $notifiable->getSource();
-            if ($source) {
-                $table = TableRegistry::getTableLocator()->get($source);
+            if ($source !== '' && $source !== '0') {
+                $table = $this->getTableLocator()->get($source);
                 $primaryKey = $table->getPrimaryKey();
 
                 if (is_array($primaryKey)) {

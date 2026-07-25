@@ -95,7 +95,7 @@ class NotificationCommand extends BakeCommand
 
         if (is_string($content)) {
             $forceOption = $args->getOption('force');
-            $force = is_bool($forceOption) ? $forceOption : false;
+            $force = is_bool($forceOption) && $forceOption;
             $io->createFile($filename, $content, $force);
         }
 
@@ -153,8 +153,9 @@ class NotificationCommand extends BakeCommand
         if ($this->plugin) {
             $path = $this->_pluginPath($this->plugin) . 'src/' . $this->pathFragment;
         }
+
         $prefix = $this->getPrefix($args);
-        if ($prefix) {
+        if ($prefix !== '' && $prefix !== '0') {
             $path .= $prefix . DIRECTORY_SEPARATOR;
         }
 
@@ -167,7 +168,7 @@ class NotificationCommand extends BakeCommand
      * @param \Cake\Console\ConsoleOptionParser $parser The parser to configure
      * @return \Cake\Console\ConsoleOptionParser
      */
-    public function buildOptionParser(ConsoleOptionParser $parser): ConsoleOptionParser
+    protected function buildOptionParser(ConsoleOptionParser $parser): ConsoleOptionParser
     {
         $parser = $this->_setCommonOptions($parser);
         $parser->setDescription('Bake Notification class.')
@@ -224,12 +225,12 @@ class NotificationCommand extends BakeCommand
     {
         $channelsOption = (string)$args->getOption('channels');
 
-        if ($channelsOption) {
+        if ($channelsOption !== '' && $channelsOption !== '0') {
             if ($channelsOption === 'all') {
                 return array_keys($this->getAvailableChannels());
             }
 
-            return array_map('trim', explode(',', $channelsOption));
+            return array_map(trim(...), explode(',', $channelsOption));
         }
 
         $available = $this->getAvailableChannels();
@@ -242,7 +243,7 @@ class NotificationCommand extends BakeCommand
             return $channelNames;
         }
 
-        return array_map('trim', explode(',', $selection));
+        return array_map(trim(...), explode(',', $selection));
     }
 
     /**
@@ -305,7 +306,7 @@ class NotificationCommand extends BakeCommand
      */
     protected function findChannelTemplate(string $channelName): ?string
     {
-        if (in_array($channelName, ['database', 'mail'])) {
+        if (in_array($channelName, ['database', 'mail'], true)) {
             return null;
         }
 
@@ -320,7 +321,7 @@ class NotificationCommand extends BakeCommand
                 if (file_exists($templatePath)) {
                     return $templatePath;
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 continue;
             }
         }
@@ -336,7 +337,7 @@ class NotificationCommand extends BakeCommand
      */
     protected function findChannelImports(string $channelName): array
     {
-        if (in_array($channelName, ['database', 'mail'])) {
+        if (in_array($channelName, ['database', 'mail'], true)) {
             return [];
         }
 
@@ -354,9 +355,9 @@ class NotificationCommand extends BakeCommand
                         continue;
                     }
 
-                    return array_filter(array_map('trim', explode("\n", $content)));
+                    return array_filter(array_map(trim(...), explode("\n", $content)));
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 continue;
             }
         }

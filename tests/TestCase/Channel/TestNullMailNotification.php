@@ -27,7 +27,6 @@ class TestNullMailNotification extends Notification
      * Get mail representation (returns null)
      *
      * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable Notifiable entity
-     * @return null
      */
     public function toMail(EntityInterface|AnonymousNotifiable $notifiable): mixed
     {

@@ -50,7 +50,7 @@ class MailChannel implements ChannelInterface
 
         $recipients = $this->getRecipients($notifiable, $notification);
 
-        if (empty($recipients)) {
+        if ($recipients === []) {
             return null;
         }
 
@@ -72,14 +72,11 @@ class MailChannel implements ChannelInterface
                 if (is_string($route)) {
                     return [$route];
                 }
+
                 if (is_array($route)) {
                     $recipients = [];
                     foreach ($route as $email => $name) {
-                        if (is_numeric($email)) {
-                            $recipients[] = $name;
-                        } else {
-                            $recipients[] = $email;
-                        }
+                        $recipients[] = is_numeric($email) ? $name : $email;
                     }
 
                     return $recipients;
@@ -146,28 +143,20 @@ class MailChannel implements ChannelInterface
             $mailer->setFrom($message->from['address'], $message->from['name'] ?? null);
         }
 
-        if ($message->replyTo) {
-            foreach ($message->replyTo as $replyTo) {
-                $mailer->setReplyTo($replyTo['address'], $replyTo['name'] ?? null);
-            }
+        foreach ($message->replyTo as $replyTo) {
+            $mailer->setReplyTo($replyTo['address'], $replyTo['name'] ?? null);
         }
 
-        if ($message->cc) {
-            foreach ($message->cc as $cc) {
-                $mailer->setCc($cc['address'], $cc['name'] ?? null);
-            }
+        foreach ($message->cc as $cc) {
+            $mailer->setCc($cc['address'], $cc['name'] ?? null);
         }
 
-        if ($message->bcc) {
-            foreach ($message->bcc as $bcc) {
-                $mailer->setBcc($bcc['address'], $bcc['name'] ?? null);
-            }
+        foreach ($message->bcc as $bcc) {
+            $mailer->setBcc($bcc['address'], $bcc['name'] ?? null);
         }
 
-        if ($message->attachments) {
-            foreach ($message->attachments as $attachment) {
-                $mailer->setAttachments([$attachment['file'] => $attachment['options']]);
-            }
+        foreach ($message->attachments as $attachment) {
+            $mailer->setAttachments([$attachment['file'] => $attachment['options']]);
         }
 
         if ($message->view) {

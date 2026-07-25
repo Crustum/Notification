@@ -11,8 +11,11 @@ namespace Crustum\Notification\Message;
 class MailMessage
 {
     public const LEVEL_INFO = 'info';
+
     public const LEVEL_SUCCESS = 'success';
+
     public const LEVEL_ERROR = 'error';
+
     public const LEVEL_WARNING = 'warning';
 
     /**
@@ -122,8 +125,6 @@ class MailMessage
 
     /**
      * Create a new mail message
-     *
-     * @return static
      */
     public static function create(): static
     {
@@ -134,7 +135,6 @@ class MailMessage
      * Set the subject
      *
      * @param string $subject Email subject
-     * @return static
      */
     public function subject(string $subject): static
     {
@@ -148,7 +148,6 @@ class MailMessage
      *
      * @param string $view Template name
      * @param array<string, mixed> $data View data
-     * @return static
      */
     public function view(string $view, array $data = []): static
     {
@@ -162,7 +161,6 @@ class MailMessage
      * Set the message level
      *
      * @param string $level Level (info, success, error, warning)
-     * @return static
      */
     public function level(string $level): static
     {
@@ -173,8 +171,6 @@ class MailMessage
 
     /**
      * Set level to success
-     *
-     * @return static
      */
     public function success(): static
     {
@@ -183,8 +179,6 @@ class MailMessage
 
     /**
      * Set level to error
-     *
-     * @return static
      */
     public function error(): static
     {
@@ -193,8 +187,6 @@ class MailMessage
 
     /**
      * Set level to warning
-     *
-     * @return static
      */
     public function warning(): static
     {
@@ -205,7 +197,6 @@ class MailMessage
      * Set the greeting
      *
      * @param string $greeting Greeting text
-     * @return static
      */
     public function greeting(string $greeting): static
     {
@@ -218,7 +209,6 @@ class MailMessage
      * Set the salutation
      *
      * @param string $salutation Salutation text
-     * @return static
      */
     public function salutation(string $salutation): static
     {
@@ -231,7 +221,6 @@ class MailMessage
      * Add a line of text
      *
      * @param string $line Text line
-     * @return static
      */
     public function line(string $line): static
     {
@@ -249,7 +238,6 @@ class MailMessage
      *
      * @param bool $condition Condition to check
      * @param string $line Text line
-     * @return static
      */
     public function lineIf(bool $condition, string $line): static
     {
@@ -265,7 +253,6 @@ class MailMessage
      *
      * @param string $text Button text
      * @param string $url Button URL
-     * @return static
      */
     public function action(string $text, string $url): static
     {
@@ -280,7 +267,6 @@ class MailMessage
      *
      * @param string $address Email address
      * @param string|null $name Sender name
-     * @return static
      */
     public function from(string $address, ?string $name = null): static
     {
@@ -294,7 +280,6 @@ class MailMessage
      *
      * @param string $address Email address
      * @param string|null $name Name
-     * @return static
      */
     public function replyTo(string $address, ?string $name = null): static
     {
@@ -308,7 +293,6 @@ class MailMessage
      *
      * @param string $address Email address
      * @param string|null $name Name
-     * @return static
      */
     public function cc(string $address, ?string $name = null): static
     {
@@ -322,7 +306,6 @@ class MailMessage
      *
      * @param string $address Email address
      * @param string|null $name Name
-     * @return static
      */
     public function bcc(string $address, ?string $name = null): static
     {
@@ -336,7 +319,6 @@ class MailMessage
      *
      * @param string $file File path
      * @param array<string, mixed> $options Attachment options
-     * @return static
      */
     public function attach(string $file, array $options = []): static
     {

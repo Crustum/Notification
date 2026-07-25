@@ -20,7 +20,7 @@ class OnDemandNotificationSent extends NotificationConstraintBase
      * @param mixed $other Notification class name
      * @return bool
      */
-    public function matches(mixed $other): bool
+    protected function matches(mixed $other): bool
     {
         $notificationClass = $other;
         $notifications = $this->getNotifications();

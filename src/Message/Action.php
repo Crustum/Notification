@@ -63,7 +63,6 @@ class Action
      * Create a new action instance
      *
      * @param string $name Action identifier
-     * @return static
      * @phpstan-return static
      */
     public static function new(string $name): static
@@ -75,7 +74,6 @@ class Action
      * Set the action label
      *
      * @param string $label Button text
-     * @return static
      */
     public function label(string $label): static
     {
@@ -88,7 +86,6 @@ class Action
      * Set the action URL
      *
      * @param array<string, mixed>|string $url Target URL or routing array
-     * @return static
      */
     public function url(string|array $url): static
     {
@@ -101,7 +98,6 @@ class Action
      * Set the action type/color
      *
      * @param string $type Action type (primary, success, danger, etc.)
-     * @return static
      */
     public function type(string $type): static
     {
@@ -114,7 +110,6 @@ class Action
      * Set the action icon
      *
      * @param string $icon Icon identifier
-     * @return static
      */
     public function icon(string $icon): static
     {

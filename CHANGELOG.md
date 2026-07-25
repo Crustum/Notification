@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0]
+
+### Added
+
+- Optional `afterSending($notifiable, $channel, $response)` hook after successful channel delivery
+- Optional `viaConnections()` / `viaQueues()` per-channel queue routing with fallback to notification defaults
+- `NotificationManager` reuses a single `NotificationSender` instance until locale or sender class changes
+- `Notification::deleteWhenMissingModels()` — queued job ACKs when the notifiable entity is missing
+- `NotificationManager::channel()` accepts backed and unit enums for channel names
+
+### Fixed
+
+- `sendNow()` preserves state mutated inside `via()` (call `via()` / locale preference on the cloned original)
+- `send()` no longer double-formats notifiables; `queueNotification()` formats its own input
+- Queued notification reconstructs before loading notifiable so missing-model policy can be honored
+
 ## [1.1.0]
 
 ### Added

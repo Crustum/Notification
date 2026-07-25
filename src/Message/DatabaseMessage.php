@@ -56,7 +56,6 @@ class DatabaseMessage
      * Create a new database message instance
      *
      * @param array<string, mixed> $data Initial notification data
-     * @return static
      * @phpstan-return static
      */
     public static function new(array $data = []): static
@@ -68,7 +67,6 @@ class DatabaseMessage
      * Set the data for the notification
      *
      * @param array<string, mixed> $data Notification data
-     * @return static
      */
     public function data(array $data): static
     {

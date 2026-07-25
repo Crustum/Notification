@@ -15,7 +15,6 @@ trait PayloadTrait
      * Set the notification title
      *
      * @param string $title Title text
-     * @return static
      */
     public function title(string $title): static
     {
@@ -28,7 +27,6 @@ trait PayloadTrait
      * Set the notification message
      *
      * @param string $message Message text
-     * @return static
      */
     public function message(string $message): static
     {
@@ -41,7 +39,6 @@ trait PayloadTrait
      * Set the notification type
      *
      * @param string $type Type (success, info, warning, danger)
-     * @return static
      */
     public function type(string $type): static
     {
@@ -54,7 +51,6 @@ trait PayloadTrait
      * Set the action URL
      *
      * @param string $url Action URL
-     * @return static
      */
     public function actionUrl(string $url): static
     {
@@ -67,7 +63,6 @@ trait PayloadTrait
      * Set the icon
      *
      * @param string $icon Icon identifier
-     * @return static
      */
     public function icon(string $icon): static
     {
@@ -80,7 +75,6 @@ trait PayloadTrait
      * Set the icon CSS class
      *
      * @param string $iconClass CSS class (e.g., 'fa fa-check')
-     * @return static
      */
     public function iconClass(string $iconClass): static
     {
@@ -93,7 +87,6 @@ trait PayloadTrait
      * Set notification actions
      *
      * @param array<\Crustum\Notification\Message\Action|array<string, mixed>> $actions Action buttons
-     * @return static
      */
     public function actions(array $actions): static
     {
@@ -109,7 +102,6 @@ trait PayloadTrait
      * Add a single action
      *
      * @param \Crustum\Notification\Message\Action|array<string, mixed> $action Action button
-     * @return static
      */
     public function addAction(Action|array $action): static
     {

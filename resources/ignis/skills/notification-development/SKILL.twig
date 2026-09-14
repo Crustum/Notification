@@ -1,0 +1,199 @@
+---
+name: notification-development
+description: "Develops multi-channel notifications with Crustum Notification for CakePHP. Activates when installing or configuring Notification; baking notification classes; sending via NotifiableTrait/NotifiableBehavior or NotificationManager; choosing built-in channels (mail, database) or optional channel plugins (broadcast, slack, seven, telegram, rocketchat, webhook); queueing ShouldQueueInterface notifications; on-demand AnonymousNotifiable routing; database notification UI; NotificationTrait testing; custom channels; or when the user mentions CakePHP notifications, notify(), MailMessage, or database notifications. Use this skill whenever the user works with user notifications in CakePHP, even if they don't explicitly mention the Notification plugin."
+license: MIT
+metadata:
+  author: crustum
+---
+# CakePHP Notification Plugin
+
+## Documentation First
+
+Prefer Notification package docs (`plugins/Notification/docs/index.md` or the package docs in the installed plugin) and Ignis project guidelines before inventing notification wiring. This skill orients you — the package docs hold channel-specific and UI details.
+
+## Installation
+
+```bash
+composer require crustum/notification
+```
+
+```bash
+{{ assist.cakeCommand('plugin load Crustum/Notification') }}
+{{ assist.cakeCommand('manifest install --plugin Crustum/Notification') }}
+{{ assist.cakeCommand('migrations migrate -p Crustum/Notification') }}
+```
+
+Manifest creates `config/notification.php`, copies migrations, and appends config loading in bootstrap.
+
+## Generating Notifications
+
+```bash
+{{ assist.cakeCommand('bake notification InvoicePaid') }}
+{{ assist.cakeCommand('bake notification InvoicePaid --channels database,mail,slack') }}
+```
+
+Classes live under `src/Notification/`. Each defines `via()` plus channel methods (`toMail()`, `toDatabase()`, …).
+
+## Making Entities Notifiable
+
+Use **both** the trait on the table and the behavior:
+
+@ignissnippet("Notifiable UsersTable", "php")
+namespace App\Model\Table;
+
+use Cake\ORM\Table;
+use Crustum\Notification\Model\Trait\NotifiableTrait;
+
+class UsersTable extends Table
+{
+    use NotifiableTrait;
+
+    public function initialize(array $config): void
+    {
+        parent::initialize($config);
+        $this->addBehavior('Crustum/Notification.Notifiable');
+    }
+}
+@endignissnippet
+
+@ignissnippet("Send via table notify", "php")
+use App\Notification\InvoicePaid;
+
+$usersTable = $this->getTableLocator()->get('Users');
+$user = $usersTable->get(1);
+$usersTable->notify($user, new InvoicePaid($invoice));
+@endignissnippet
+
+Or bulk-send:
+
+@ignissnippet("NotificationManager send", "php")
+use Crustum\Notification\NotificationManager;
+use App\Notification\InvoicePaid;
+
+NotificationManager::send($users, new InvoicePaid($invoice));
+NotificationManager::sendNow($developers, new DeploymentCompleted($deployment));
+@endignissnippet
+
+## Channels
+
+Core `crustum/notification` ships **built-in** channels: `mail` and `database`.
+
+Other channel names (`broadcast`, `slack`, `seven`, `telegram`, `rocketchat`, `webhook`) require **additional Composer packages**. Returning them from `via()` without installing the matching plugin will not deliver.
+
+`via()` may return any registered channel name (built-in, optional plugins, or custom):
+
+@ignissnippet("via channels", "php")
+public function via(EntityInterface|AnonymousNotifiable $notifiable): array
+{
+    return $notifiable->prefers_sms ? ['seven'] : ['mail', 'database'];
+}
+@endignissnippet
+
+### Additional channel plugins
+
+Install only the packages you need. Details live in Notification `docs/modules.md` (and each package’s own docs).
+
+| Channel | Package | Notes |
+|---------|---------|--------|
+| `broadcast` | `crustum/notification-broadcasting` | Real-time; needs Broadcasting (+ BlazeCast or Mercure). Optional UI: `crustum/notification-ui`. Mercure driver: `crustum/mercure-broadcasting`. |
+| `slack` | `crustum/notification-slack` | Plugin `Crustum/SlackNotification`; `toSlack()` |
+| `seven` | `crustum/notification-seven` (Seven.io SMS) | `toSeven()`; configure Seven API credentials |
+| `telegram` | `crustum/notification-telegram` | `toTelegram()` / media helpers; bot token |
+| `rocketchat` | `crustum/notification-rocketchat` | `toRocketchat()`; webhook URL |
+| `webhook` | `crustum/notification-webhook` | Arbitrary HTTP endpoints |
+
+Related UI (not a delivery channel): `crustum/notification-ui` — bell/panel for database notifications; optional WebSocket via broadcasting-notification.
+
+After requiring a channel package, load its plugin (and run manifest install when the package provides one), then implement the matching `to*()` method on the notification class.
+
+### Mail
+
+@ignissnippet("toMail MailMessage", "php")
+use Crustum\Notification\Message\MailMessage;
+
+public function toMail(EntityInterface|AnonymousNotifiable $notifiable): MailMessage
+{
+    $url = \Cake\Routing\Router::url(
+        ['controller' => 'Invoices', 'action' => 'view', $this->invoice->id],
+        true
+    );
+
+    return MailMessage::create()
+        ->greeting('Hello!')
+        ->line('One of your invoices has been paid!')
+        ->action('View Invoice', $url)
+        ->line('Thank you for using our application!');
+}
+@endignissnippet
+
+Override recipient with entity `routeNotificationForMail()`. Default subject is the class name in Title Case unless `subject()` is set.
+
+### Database
+
+Prefer `toDatabase()` with `DatabaseMessage`, or `toArray()` for a plain JSON payload:
+
+@ignissnippet("toDatabase DatabaseMessage", "php")
+use Crustum\Notification\Message\DatabaseMessage;
+use Crustum\Notification\Message\Action;
+
+public function toDatabase(EntityInterface|AnonymousNotifiable $notifiable): DatabaseMessage
+{
+    return DatabaseMessage::new()
+        ->title('Order Shipped')
+        ->message('Your order #' . $this->order->id . ' has been shipped')
+        ->type('success')
+        ->actionUrl(['controller' => 'Orders', 'action' => 'view', $this->order->id])
+        ->icon('truck')
+        ->addAction(
+            Action::new('view')
+                ->label('View Order')
+                ->url(['controller' => 'Orders', 'action' => 'view', $this->order->id])
+                ->type('primary')
+        );
+}
+@endignissnippet
+
+Read/unread helpers on the notifiable table: `unreadNotifications($user)`, `readNotifications($user)`, `markNotificationAsRead($user, $id)`, `markAllNotificationsAsRead($user)`.
+
+## Queueing
+
+Implement `ShouldQueueInterface`. Optional: `delay()`, `$connection`, `$queue`, `viaConnections()`, `viaQueues()`, `shouldSend()`, `afterSending()`.
+
+## On-Demand Recipients
+
+@ignissnippet("AnonymousNotifiable", "php")
+use Crustum\Notification\NotificationManager;
+use App\Notification\InvoicePaid;
+
+NotificationManager::route('mail', 'taylor@example.com')
+    ->route('seven', '5555555555')
+    ->route('slack', '#slack-channel')
+    ->notify(new InvoicePaid($invoice));
+@endignissnippet
+
+## Notification UI and Real-Time
+
+Optional UI: `crustum/notification-ui` + element `Crustum/NotificationUI.notifications/bell_icon`. Real-time needs `crustum/notification-broadcasting` (and usually BlazeCast/Broadcasting or Mercure). Keep database polling as fallback when enabling WebSocket delivery.
+
+## Testing
+
+Use `Crustum\Notification\TestSuite\NotificationTrait` to capture instead of sending. Assert with `assertNotificationSentTo`, `assertNotificationSentToChannel`, `assertNoNotificationsSent`, `assertOnDemandNotificationSent`, etc. Combine with Cake `EmailTrait` for mail body checks.
+
+## Events
+
+- `Model.Notification.sending` — return `false` / stop propagation to cancel
+- `Model.Notification.sent`
+- `Model.Notification.failed`
+
+## Custom Channels
+
+Implement `ChannelInterface::send()`, register with `NotificationManager::setChannel()` or a `ChannelProviderInterface` on `Notification.Registry.discover`.
+
+## Common Pitfalls
+
+- **Trait without Behavior** — both `NotifiableTrait` and `NotifiableBehavior` are required for table `notify()`.
+- **Missing migrations** — database channel needs `migrations migrate -p Crustum/Notification`.
+- **Queue without workers** — `ShouldQueueInterface` needs a configured queue and running worker.
+- **Mail config** — app email settings drive sender/footer for `MailMessage`.
+- **Broadcast / Slack / SMS / … without the channel package** — those channels are optional plugins; see **Additional channel plugins** above.
+- **Broadcast channel alone** — also needs Broadcasting (+ server); not enabled by Notification core.

@@ -18,10 +18,13 @@
         "crustum/plugin-manifest": "^1.0"
     },
     "require-dev": {
+        "boundwize/structarmed": "^0.15",
+        "cakedc/cakephp-phpstan": "^4.3",
         "phpunit/phpunit": "^10.5.5 || ^11.1.3 || ^12.5.0",
         "ratchet/pawl": "^0.4",
         "cakephp/bake": "^3.0",
         "react/http": "^1.7",
+        "phpstan/phpstan": "^2.2.2,<2.2.6",
         "rector/rector": "^2.5",
         "cakephp/cakephp-codesniffer": "^5.0"
     },
@@ -48,7 +51,14 @@
     "scripts": {
         "check": [
             "@cs-check",
+            "@rector-check",
             "@test",
+            "@stan"
+        ],
+        "fix": [
+            "@cs-fix",
+            "@rector-fix",
+            "@cs-fix",
             "@analyse"
         ],
         "analyse": [
@@ -60,12 +70,13 @@
         "test:unit": "phpunit --testsuite=Unit",
         "test:integration": "phpunit --testsuite=Integration",
         "test:coverage": "phpunit --coverage-html coverage",
-        "stan": "tools/phpstan analyse src/ tests/",
-        "psalm": "tools/psalm --show-info=false",
+        "stan": "phpstan analyse src/ tests/",
+        "psalm": "psalm --show-info=false",
         "rector-check": "vendor/bin/rector process --dry-run",
         "rector-fix": "vendor/bin/rector process",
-        "stan-tests": "tools/phpstan analyze -c tests/phpstan.neon",
-        "stan-baseline": "tools/phpstan --generate-baseline"
+        "stan-tests": "phpstan analyze -c tests/phpstan.neon",
+        "stan-baseline": "phpstan --generate-baseline",
+        "structarmed": "vendor/bin/structarmed analyze src"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,

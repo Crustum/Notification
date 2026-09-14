@@ -5,6 +5,7 @@
     - [Formatting Broadcasting Notifications](#formatting-broadcasting-notifications)
     - [Broadcasting Options](#broadcasting-options)
     - [Listening for Notifications](#listening-for-notifications)
+        - [Using React, Vue, or Svelte](#using-react-vue-or-svelte)
 - [Slack Notifications](#slack-notifications)
     - [Prerequisites](#slack-prerequisites)
     - [Formatting Slack Notifications](#formatting-slack-notifications)
@@ -160,17 +161,64 @@ public function broadcastAs(): ?string
 
 When using the NotificationUI plugin with broadcasting enabled, notifications are automatically received and displayed in real-time. The JavaScript client subscribes to the user's private channel and handles incoming notifications automatically.
 
-For custom implementations, you can listen to broadcast events using Laravel Echo:
+For custom implementations, you can listen to broadcast notifications using Laravel Echo's `notification` method:
 
 ```javascript
 Echo.private(`App.Model.Entity.User.${userId}`)
-    .listen('.App.Notification.OrderShipped', (notification) => {
-        console.log('New notification:', notification);
-        // Handle the notification in your UI
+    .notification((notification) => {
+        console.log(notification.type);
     });
 ```
 
-The broadcast event contains all data returned from your `toBroadcast()` method, along with the notification `id` and `type` (class name).
+<a name="using-react-vue-or-svelte"></a>
+#### Using React, Vue, or Svelte
+
+Laravel Echo includes React, Vue, and Svelte hooks that make it painless to listen for notifications. To get started, invoke the `useEchoNotification` hook:
+
+::: code-group
+
+```js [React]
+import { useEchoNotification } from "@laravel/echo-react";
+
+useEchoNotification(
+    `App.Model.Entity.User.${userId}`,
+    (notification) => {
+        console.log(notification.type);
+    },
+);
+```
+
+```vue [Vue]
+<script setup lang="ts">
+import { useEchoNotification } from "@laravel/echo-vue";
+
+useEchoNotification(
+    `App.Model.Entity.User.${userId}`,
+    (notification) => {
+        console.log(notification.type);
+    },
+);
+</script>
+```
+
+```svelte [Svelte]
+<script>
+import { useEchoNotification } from "@laravel/echo-svelte";
+
+useEchoNotification(
+    `App.Model.Entity.User.${userId}`,
+    (notification) => {
+        console.log(notification.type);
+    },
+);
+</script>
+```
+
+:::
+
+By default, the hook listens to all notifications. Pass a string or array of notification types as the third argument to filter. Full examples (typed payloads, stop listening) are in the [Broadcasting plugin Notifications](https://github.com/Crustum/Broadcasting/blob/main/docs/index.md#notifications) documentation.
+
+The broadcast payload contains all data returned from your `toBroadcast()` method, along with the notification `id` and `type` (class name).
 
 <a name="slack-notifications"></a>
 ## Slack Notifications

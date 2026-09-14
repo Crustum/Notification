@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0]
+
+### Added
+
+- `NotificationSkippedEvent` (`Model.Notification.skipped`) — dispatched when a notification is skipped due to `shouldSend()` returning `false` or the sending event being stopped
+- `Notification::failOnTimeout()` — queued notification jobs can be marked as failed on timeout instead of released back to the queue
+- `Notification::shouldFailOnTimeout()` getter for checking the fail-on-timeout setting
+- `SendQueuedNotificationJob::$failOnTimeout` property reads the setting from queue message data
+- Ignis skill for CakePHP Notification plugin development workflow
+- StructArmed architecture layer definition
+
+### Changed
+
+- `NotificationSender::sendToNotifiable()` now dispatches `Model.Notification.skipped` event when notification is not sent
+- `NotificationSender::queueNotification()` passes `failOnTimeout` flag in queue job data
+
 ## [1.2.0]
 
 ### Added

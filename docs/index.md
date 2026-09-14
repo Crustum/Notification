@@ -270,6 +270,39 @@ public function viaQueues(): array
 }
 ```
 
+#### Fail On Timeout
+
+If you would like to mark a queued notification as failed when it times out (instead of the default behavior of releasing it back to the queue), you may use the `failOnTimeout()` method on your notification:
+
+```php
+<?php
+namespace App\Notification;
+
+use Crustum\Notification\Notification;
+use Crustum\Notification\ShouldQueueInterface;
+
+class InvoicePaid extends Notification implements ShouldQueueInterface
+{
+    public function __construct()
+    {
+        $this->failOnTimeout();
+    }
+
+    // ...
+}
+```
+
+Alternatively, you may set the `$failOnTimeout` property directly:
+
+```php
+class InvoicePaid extends Notification implements ShouldQueueInterface
+{
+    protected bool $failOnTimeout = true;
+
+    // ...
+}
+```
+
 #### After Sending Hook
 
 After a channel successfully delivers a notification, you may define an `afterSending` method on the notification class:
@@ -770,6 +803,8 @@ With broadcasting enabled, notifications are delivered instantly via WebSocket w
 > [!NOTE]
 > Broadcasting requires the `crustum/broadcasting-notification` plugin to be installed and configured. See the [Broadcasting Notifications](modules.md#broadcasting-notifications) documentation for more details.
 
+On the frontend, listen with Echo's `notification` method or the `useEchoNotification` React / Vue / Svelte hooks. See [Listening for Notifications](modules.md#listening-for-notifications) and the [Broadcasting plugin Notifications](https://github.com/Crustum/Broadcasting/blob/main/docs/index.md#notifications) section.
+
 <a name="localizing-notifications"></a>
 ## Localizing Notifications
 
@@ -1225,6 +1260,23 @@ EventManager::instance()->on('Model.Notification.failed', function (Event $event
     $exception = $event->getData('exception');
 
     // Log the failure...
+});
+```
+
+### Notification Skipped Event
+
+When a notification is skipped (not sent) because the notification's `shouldSend()` method returned `false` or the sending event was stopped, the `Model.Notification.skipped` event is dispatched:
+
+```php
+use Cake\Event\Event;
+use Cake\Event\EventManager;
+
+EventManager::instance()->on('Model.Notification.skipped', function (Event $event) {
+    $notifiable = $event->getData('notifiable');
+    $notification = $event->getData('notification');
+    $channel = $event->getData('channel');
+
+    // Log the skipped notification...
 });
 ```
 

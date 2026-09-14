@@ -1,10 +1,13 @@
 includes:
     - phpstan-baseline.neon
+    - vendor/cakedc/cakephp-phpstan/extension.neon
 
 parameters:
     level: 8
     bootstrapFiles:
         - tests/bootstrap.php
+    cakeDC:
+        appNamespace: TestApp
     ignoreErrors:
         -
             identifier: missingType.generics

@@ -11,7 +11,7 @@ use TestApp\Notification\PostPublished;
 /**
  * Posts Table
  *
- * @property \Cake\ORM\Association\BelongsTo $Users
+ * @property \TestApp\Model\Table\UsersTable&\Cake\ORM\Association\BelongsTo $Users
  * @method \TestApp\Model\Entity\Post newEmptyEntity()
  * @method \TestApp\Model\Entity\Post newEntity(array<string, mixed> $data, array<string, mixed> $options = [])
  * @method array<\TestApp\Model\Entity\Post> newEntities(array<string, mixed> $data, array<string, mixed> $options = [])

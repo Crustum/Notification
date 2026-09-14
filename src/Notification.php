@@ -78,6 +78,13 @@ abstract class Notification
     protected bool $deleteWhenMissingModels = false;
 
     /**
+     * Whether the queued job should be marked as failed on timeout
+     *
+     * @var bool
+     */
+    protected bool $failOnTimeout = false;
+
+    /**
      * Get the notification delivery channels
      *
      * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable The entity to notify
@@ -219,6 +226,29 @@ abstract class Notification
     public function shouldDeleteWhenMissingModels(): bool
     {
         return $this->deleteWhenMissingModels;
+    }
+
+    /**
+     * Set whether the queued job should be marked as failed on timeout
+     *
+     * @param bool $value True to fail the job on timeout
+     * @return $this
+     */
+    public function failOnTimeout(bool $value = true)
+    {
+        $this->failOnTimeout = $value;
+
+        return $this;
+    }
+
+    /**
+     * Whether the queued job should be marked as failed on timeout
+     *
+     * @return bool
+     */
+    public function shouldFailOnTimeout(): bool
+    {
+        return $this->failOnTimeout;
     }
 
     /**

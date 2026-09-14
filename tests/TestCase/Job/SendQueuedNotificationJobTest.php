@@ -9,6 +9,7 @@ use Cake\TestSuite\TestCase;
 use Crustum\Notification\Channel\DatabaseChannel;
 use Crustum\Notification\Job\SendQueuedNotificationJob;
 use Crustum\Notification\NotificationManager;
+use Crustum\Notification\Test\TestCase\TestFailOnTimeoutNotification;
 use DateTime;
 use Interop\Queue\Processor;
 
@@ -260,6 +261,63 @@ class SendQueuedNotificationJobTest extends TestCase
         $this->assertEquals(['tag1', 'tag2'], $restored->getTags());
         $this->assertInstanceOf(DateTime::class, $restored->getCreatedAt());
         $this->assertEquals('2025-10-14 12:00:00', $restored->getCreatedAt()->format('Y-m-d H:i:s'));
+    }
+
+    /**
+     * Test execute reads failOnTimeout from message
+     *
+     * @return void
+     */
+    public function testExecuteReadsFailOnTimeoutFromMessage(): void
+    {
+        $notification = new TestJobNotification('Test Title');
+        $serialized = serialize($notification);
+
+        $message = $this->createMessage([
+            'notifiableModel' => 'Users',
+            'notifiableForeignKey' => '1',
+            'notification' => $serialized,
+            'channels' => ['database'],
+            'failOnTimeout' => true,
+        ]);
+
+        $this->job->execute($message);
+
+        $this->assertTrue($this->job->failOnTimeout);
+    }
+
+    /**
+     * Test execute defaults failOnTimeout to false
+     *
+     * @return void
+     */
+    public function testExecuteDefaultsFailOnTimeoutToFalse(): void
+    {
+        $notification = new TestJobNotification('Test Title');
+        $serialized = serialize($notification);
+
+        $message = $this->createMessage([
+            'notifiableModel' => 'Users',
+            'notifiableForeignKey' => '1',
+            'notification' => $serialized,
+            'channels' => ['database'],
+        ]);
+
+        $this->job->execute($message);
+
+        $this->assertFalse($this->job->failOnTimeout);
+    }
+
+    /**
+     * Test notification with failOnTimeout set
+     *
+     * @return void
+     */
+    public function testNotificationWithFailOnTimeoutSet(): void
+    {
+        $notification = new TestFailOnTimeoutNotification();
+
+        $this->assertTrue($notification->shouldFailOnTimeout());
     }
 
     /**

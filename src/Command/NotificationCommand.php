@@ -15,6 +15,7 @@ use Cake\Event\EventManager;
 use Cake\Utility\Inflector;
 use Crustum\Notification\Registry\ChannelRegistry;
 use Exception;
+use Override;
 
 /**
  * Command for generating Notification classes
@@ -171,7 +172,7 @@ class NotificationCommand extends BakeCommand
     protected function buildOptionParser(ConsoleOptionParser $parser): ConsoleOptionParser
     {
         $parser = $this->_setCommonOptions($parser);
-        $parser->setDescription('Bake Notification class.')
+        $parser->setDescription(static::getDescription())
             ->addArgument('name', [
                 'help' => 'Name of the notification class to generate (e.g., UserMentioned, OrderShipped). "Notification" suffix will be added automatically.',
                 'required' => true,
@@ -191,6 +192,15 @@ class NotificationCommand extends BakeCommand
     public static function defaultName(): string
     {
         return 'bake notification';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override]
+    public static function getDescription(): string
+    {
+        return 'Bake a Notification class';
     }
 
     /**

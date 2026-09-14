@@ -28,6 +28,13 @@ class SendQueuedNotificationJob implements JobInterface
     use LocatorAwareTrait;
 
     /**
+     * Whether the job should be marked as failed on timeout
+     *
+     * @var bool
+     */
+    public bool $failOnTimeout = false;
+
+    /**
      * Execute the queued notification job
      *
      * @param \Cake\Queue\Job\Message $message Queue message
@@ -39,6 +46,7 @@ class SendQueuedNotificationJob implements JobInterface
         $notifiableForeignKey = $message->getArgument('notifiableForeignKey');
         $serializedNotification = $message->getArgument('notification');
         $channels = $message->getArgument('channels');
+        $this->failOnTimeout = $message->getArgument('failOnTimeout') ?? false;
 
         if (empty($notifiableModel) || empty($notifiableForeignKey) || empty($serializedNotification)) {
             Log::error('Notification job received invalid arguments');

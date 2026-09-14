@@ -199,7 +199,7 @@ class NotificationCommandTest extends TestCase
         $command = new NotificationCommand();
         $parser = $command->getOptionParser();
 
-        $this->assertStringContainsString('Bake Notification class', $parser->getDescription());
+        $this->assertStringContainsString('Bake a Notification class', $parser->getDescription());
     }
 
     /**

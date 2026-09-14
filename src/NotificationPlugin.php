@@ -25,7 +25,7 @@ class NotificationPlugin extends BasePlugin implements ManifestInterface
      * The host application is provided as an argument. This allows you to load
      * additional plugin dependencies, or attach events.
      *
-     * @param \Cake\Core\PluginApplicationInterface<\Cake\Core\BasePlugin> $app The host application
+     * @param \Cake\Core\PluginApplicationInterface $app The host application
      * @return void
      */
     public function bootstrap(PluginApplicationInterface $app): void

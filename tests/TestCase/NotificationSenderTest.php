@@ -399,7 +399,7 @@ class NotificationSenderTest extends TestCase
     }
 
     /**
-     * Test that sendNow preserves state mutated inside via()
+     * Test sendNow preserves state mutated inside via()
      *
      * @return void
      */
@@ -419,6 +419,65 @@ class NotificationSenderTest extends TestCase
         $sender->sendNow($entity, $notification);
 
         $this->assertSame('mutated-in-via', $channelData);
+    }
+
+    /**
+     * Test that sendNow dispatches skipped event when shouldSend returns false
+     *
+     * @return void
+     */
+    public function testSendNowDispatchesSkippedEventWhenShouldSendReturnsFalse(): void
+    {
+        $sender = new NotificationSender();
+        $notification = new class extends TestDatabaseNotification {
+            public function shouldSend($notifiable, string $channel): bool
+            {
+                return false;
+            }
+        };
+
+        $entity = new Entity(['id' => 1]);
+        $entity->setSource('Users');
+
+        $skippedEventFired = false;
+        $sentEventFired = false;
+        $sender->getEventManager()->on('Model.Notification.skipped', function () use (&$skippedEventFired): void {
+            $skippedEventFired = true;
+        });
+        $sender->getEventManager()->on('Model.Notification.sent', function () use (&$sentEventFired): void {
+            $sentEventFired = true;
+        });
+
+        $sender->sendNow($entity, $notification);
+
+        $this->assertTrue($skippedEventFired, 'Skipped event should have been dispatched');
+        $this->assertFalse($sentEventFired, 'Sent event should not have been dispatched');
+    }
+
+    /**
+     * Test that sendNow dispatches skipped event when sending event is stopped
+     *
+     * @return void
+     */
+    public function testSendNowDispatchesSkippedEventWhenSendingEventIsStopped(): void
+    {
+        $sender = new NotificationSender();
+        $notification = new TestDatabaseNotification();
+
+        $entity = new Entity(['id' => 1]);
+        $entity->setSource('Users');
+
+        $skippedEventFired = false;
+        $sender->getEventManager()->on('Model.Notification.sending', function ($event): void {
+            $event->stopPropagation();
+        });
+        $sender->getEventManager()->on('Model.Notification.skipped', function () use (&$skippedEventFired): void {
+            $skippedEventFired = true;
+        });
+
+        $sender->sendNow($entity, $notification);
+
+        $this->assertTrue($skippedEventFired, 'Skipped event should have been dispatched');
     }
 
     /**

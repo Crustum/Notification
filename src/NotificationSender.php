@@ -125,6 +125,12 @@ class NotificationSender
         }
 
         if (!$this->shouldSendNotification($notifiable, $notification, $channel)) {
+            $this->dispatchEvent('Model.Notification.skipped', [
+                'notifiable' => $notifiable,
+                'notification' => $notification,
+                'channel' => $channel,
+            ]);
+
             return null;
         }
 
@@ -270,6 +276,7 @@ class NotificationSender
                     'notifiableForeignKey' => (string)$notifiable->get($primaryKeyField),
                     'notification' => serialize($queuedNotification),
                     'channels' => [$channel],
+                    'failOnTimeout' => $queuedNotification->shouldFailOnTimeout(),
                 ];
 
                 $connection = $queuedNotification->getConnection();

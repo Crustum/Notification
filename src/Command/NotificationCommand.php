@@ -275,9 +275,7 @@ class NotificationCommand extends BakeCommand
         $registeredChannels = $registry->loaded();
 
         foreach ($registeredChannels as $channelName) {
-            if (!isset($channels[$channelName])) {
-                $channels[$channelName] = ['discovered' => true];
-            }
+            $channels[$channelName] ??= ['discovered' => true];
         }
 
         return $channels;

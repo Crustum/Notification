@@ -99,6 +99,8 @@ class NotificationManagerTest extends TestCase
      */
     public function testConfiguredReturnsChannels(): void
     {
+        NotificationManager::drop('database');
+        NotificationManager::drop('mail');
         NotificationManager::setConfig('database', ['className' => DatabaseChannel::class]);
         NotificationManager::setConfig('mail', ['className' => MailChannel::class]);
 

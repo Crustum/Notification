@@ -105,9 +105,7 @@ trait PayloadTrait
      */
     public function addAction(Action|array $action): static
     {
-        if (!isset($this->data['actions'])) {
-            $this->data['actions'] = [];
-        }
+        $this->data['actions'] ??= [];
 
         $this->data['actions'][] = $action instanceof Action ? $action->toArray() : $action;
 

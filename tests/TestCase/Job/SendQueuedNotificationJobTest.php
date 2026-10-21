@@ -48,6 +48,7 @@ class SendQueuedNotificationJobTest extends TestCase
         $this->job = new SendQueuedNotificationJob();
 
         NotificationManager::resetSender();
+        NotificationManager::drop('database');
         NotificationManager::setConfig('database', [
             'className' => DatabaseChannel::class,
         ]);

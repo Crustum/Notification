@@ -14,21 +14,23 @@
         "cakephp/cakephp": "^5.1",
         "cakephp/authentication": "*",
         "cakephp/authorization": "*",
-        "cakephp/queue": "^2.2",
-        "crustum/plugin-manifest": "^1.0"
+        "cakephp/queue": "^2.2"
     },
     "require-dev": {
         "boundwize/structarmed": "^0.15",
         "cakedc/cakephp-phpstan": "^4.3",
-        "phpunit/phpunit": "^10.5.5 || ^11.1.3 || ^12.5.0",
-        "ratchet/pawl": "^0.4",
         "cakephp/bake": "^3.0",
+        "cakephp/cakephp-codesniffer": "^5.3",
+        "crustum/debug-bar": "dev-main",
+        "crustum/plugin-manifest": "^1.2",
+        "phpstan/phpstan": "^2.3",
+        "phpunit/phpunit": "^10.5.5 || ^11.1.3 || ^12.5.0 | ^13.0",
+        "ratchet/pawl": "^0.4",
         "react/http": "^1.7",
-        "phpstan/phpstan": "^2.2.2,<2.2.6",
-        "rector/rector": "^2.5",
-        "cakephp/cakephp-codesniffer": "^5.0"
+        "rector/rector": "^2.7"
     },
     "suggest": {
+        "crustum/plugin-manifest": "CakePHP plugin installer",
         "crustum/notification-slack": "Slack notification channel",
         "crustum/notification-telegram": "Telegram notification channel",
         "crustum/notification-rocketchat": "RocketChat notification channel",

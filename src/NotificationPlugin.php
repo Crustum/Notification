@@ -5,20 +5,17 @@ namespace Crustum\Notification;
 
 use Cake\Console\CommandCollection;
 use Cake\Core\BasePlugin;
+use Cake\Core\Configure;
 use Cake\Core\PluginApplicationInterface;
+use Crustum\Notification\Channel\DatabaseChannel;
+use Crustum\Notification\Channel\MailChannel;
 use Crustum\Notification\Command\NotificationCommand;
-use Crustum\PluginManifest\Manifest\ManifestInterface;
-use Crustum\PluginManifest\Manifest\ManifestTrait;
 
 /**
  * Plugin for Notification
- *
- * @uses \Crustum\PluginManifest\Manifest\ManifestTrait
  */
-class NotificationPlugin extends BasePlugin implements ManifestInterface
+class NotificationPlugin extends BasePlugin
 {
-    use ManifestTrait;
-
     /**
      * Load all the plugin configuration and bootstrap logic.
      *
@@ -30,6 +27,60 @@ class NotificationPlugin extends BasePlugin implements ManifestInterface
      */
     public function bootstrap(PluginApplicationInterface $app): void
     {
+        parent::bootstrap($app);
+
+        if (!Configure::check('Notification')) {
+            if (file_exists(CONFIG . 'notification.php')) {
+                Configure::load('notification', 'default');
+            } elseif (file_exists($this->getConfigPath() . 'notification.php')) {
+                Configure::load('Crustum/Notification.notification', 'default', false);
+            }
+        }
+
+        static::ensureDefaultChannels();
+
+        $descriptions = (array)Configure::read('DebugBar.inspectorDescriptions');
+        $descriptions['Notifications'] ??= 'Notification deliveries grouped by recipient and channel.';
+        Configure::write('DebugBar.inspectorDescriptions', $descriptions);
+    }
+
+    /**
+     * Registers bundled and host-configured channels once.
+     *
+     * The plugin boots on every integration test request while channel
+     * configs live in a process-global static — unconditional `setConfig()`
+     * throws "Cannot reconfigure" on the second boot, so only missing
+     * keys are filled. Host `Notification.channels` configure entries win
+     * over the bundled defaults; host apps keep full override power by
+     * configuring channels before the plugin boots. Channels shipped by
+     * satellite plugins (e.g. `broadcast`) register themselves — they do
+     * not belong to this plugin's defaults.
+     *
+     * @return void
+     */
+    protected static function ensureDefaultChannels(): void
+    {
+        $channels = [
+            'database' => [
+                'className' => DatabaseChannel::class,
+            ],
+            'mail' => [
+                'className' => MailChannel::class,
+                'profile' => 'default',
+            ],
+        ];
+
+        $notification = (array)Configure::read('Notification');
+        foreach ((array)($notification['channels'] ?? []) as $name => $channelConfig) {
+            $channels[$name] = $channelConfig;
+        }
+
+        $configured = NotificationManager::configured();
+        foreach ($channels as $name => $config) {
+            if (!in_array($name, $configured, true)) {
+                NotificationManager::setConfig($name, $config);
+            }
+        }
     }
 
     /**
@@ -44,31 +95,5 @@ class NotificationPlugin extends BasePlugin implements ManifestInterface
         $commands->add('bake notification', NotificationCommand::class);
 
         return $commands;
-    }
-
-    /**
-     * Get the manifest for the plugin.
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    public static function manifest(): array
-    {
-        $pluginPath = dirname(__DIR__);
-
-        return array_merge(
-            static::manifestMigrations(
-                $pluginPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'Migrations',
-            ),
-            static::manifestConfig(
-                $pluginPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'notification.php.example',
-                CONFIG . 'notification.php',
-                false,
-            ),
-            static::manifestBootstrapAppend(
-                "if (file_exists(CONFIG . 'notification.php')) {\n    Configure::load('notification', 'default');\n}",
-                '// Notification Plugin Configuration',
-            ),
-            static::manifestStarRepo('Crustum/Notification'),
-        );
     }
 }

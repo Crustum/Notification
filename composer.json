@@ -14,7 +14,7 @@
         "cakephp/cakephp": "^5.1",
         "cakephp/authentication": "*",
         "cakephp/authorization": "*",
-        "cakephp/queue": "^2.2"
+        "cakephp/queue": "^2.2||3.x-dev"
     },
     "require-dev": {
         "boundwize/structarmed": "^0.15",

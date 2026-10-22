@@ -76,6 +76,7 @@ class ActionTest extends TestCase
     public function testUrlWithArray(): void
     {
         Router::reload();
+        Router::fullBaseUrl('http://example.com');
         $builder = Router::createRouteBuilder('/');
         $builder->connect('/posts/:id', ['controller' => 'Posts', 'action' => 'view'], ['id' => '\d+']);
 

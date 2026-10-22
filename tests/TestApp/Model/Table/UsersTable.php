@@ -57,6 +57,8 @@ class UsersTable extends Table
      */
     public function validationDefault(Validator $validator): Validator
     {
+        $validator->setProvider('table', $this);
+
         $validator
             ->integer('id')
             ->allowEmptyString('id', null, 'create');

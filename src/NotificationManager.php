@@ -42,35 +42,35 @@ class NotificationManager
      *
      * @var \Crustum\Notification\Registry\ChannelRegistry
      */
-    protected static ChannelRegistry $_registry;
+    protected static ChannelRegistry $registry;
 
     /**
      * Locale for notifications
      *
      * @var string|null
      */
-    protected static ?string $_locale = null;
+    protected static ?string $locale = null;
 
     /**
      * Notification sender class to use
      *
      * @var class-string<\Crustum\Notification\NotificationSender>|null
      */
-    protected static ?string $_senderClass = null;
+    protected static ?string $senderClass = null;
 
     /**
      * Cached notification sender instance
      *
      * @var \Crustum\Notification\NotificationSender|null
      */
-    protected static ?NotificationSender $_sender = null;
+    protected static ?NotificationSender $sender = null;
 
     /**
      * Locale used when the cached sender was created
      *
      * @var string|null
      */
-    protected static ?string $_senderLocale = null;
+    protected static ?string $senderLocale = null;
 
     /**
      * Returns the Channel Registry instance used for creating and using channel instances
@@ -79,12 +79,12 @@ class NotificationManager
      */
     public static function getRegistry(): ChannelRegistry
     {
-        if (!isset(static::$_registry)) {
-            static::$_registry = new ChannelRegistry();
-            static::$_registry->dispatchDiscoveryEvent();
+        if (!isset(static::$registry)) {
+            static::$registry = new ChannelRegistry();
+            static::$registry->dispatchDiscoveryEvent();
         }
 
-        return static::$_registry;
+        return static::$registry;
     }
 
     /**
@@ -97,7 +97,7 @@ class NotificationManager
      */
     public static function setRegistry(ChannelRegistry $registry): void
     {
-        static::$_registry = $registry;
+        static::$registry = $registry;
     }
 
     /**
@@ -156,13 +156,13 @@ class NotificationManager
             return;
         }
 
-        if (empty(static::$_config[$name]['className'])) {
+        if (empty(static::$config[$name]['className'])) {
             throw new InvalidArgumentException(
                 sprintf('The `%s` notification channel configuration does not exist.', $name),
             );
         }
 
-        $config = static::$_config[$name];
+        $config = static::$config[$name];
         $registry->load($name, $config);
     }
 
@@ -220,7 +220,7 @@ class NotificationManager
      */
     public static function configureSender(string $class): void
     {
-        static::$_senderClass = $class;
+        static::$senderClass = $class;
         static::clearSenderCache();
     }
 
@@ -231,7 +231,7 @@ class NotificationManager
      */
     public static function resetSender(): void
     {
-        static::$_senderClass = null;
+        static::$senderClass = null;
         static::clearSenderCache();
     }
 
@@ -242,8 +242,8 @@ class NotificationManager
      */
     protected static function clearSenderCache(): void
     {
-        static::$_sender = null;
-        static::$_senderLocale = null;
+        static::$sender = null;
+        static::$senderLocale = null;
     }
 
     /**
@@ -256,18 +256,18 @@ class NotificationManager
      */
     public static function getSender(?string $locale = null): NotificationSender
     {
-        $class = static::$_senderClass ?? NotificationSender::class;
+        $class = static::$senderClass ?? NotificationSender::class;
 
         if (
-            !static::$_sender instanceof NotificationSender
-            || !(static::$_sender instanceof $class)
-            || static::$_senderLocale !== $locale
+            !static::$sender instanceof NotificationSender
+            || !(static::$sender instanceof $class)
+            || static::$senderLocale !== $locale
         ) {
-            static::$_sender = new $class($locale);
-            static::$_senderLocale = $locale;
+            static::$sender = new $class($locale);
+            static::$senderLocale = $locale;
         }
 
-        return static::$_sender;
+        return static::$sender;
     }
 
     /**
@@ -279,7 +279,7 @@ class NotificationManager
      */
     public static function send(EntityInterface|AnonymousNotifiable|iterable $notifiables, Notification $notification): void
     {
-        static::getSender(static::$_locale)->send($notifiables, $notification);
+        static::getSender(static::$locale)->send($notifiables, $notification);
     }
 
     /**
@@ -292,7 +292,7 @@ class NotificationManager
      */
     public static function sendNow(EntityInterface|AnonymousNotifiable|iterable $notifiables, Notification $notification, ?array $channels = null): void
     {
-        static::getSender(static::$_locale)->sendNow($notifiables, $notification, $channels);
+        static::getSender(static::$locale)->sendNow($notifiables, $notification, $channels);
     }
 
     /**
@@ -303,7 +303,7 @@ class NotificationManager
      */
     public static function locale(string $locale): void
     {
-        static::$_locale = $locale;
+        static::$locale = $locale;
         static::clearSenderCache();
     }
 
@@ -314,7 +314,7 @@ class NotificationManager
      */
     public static function configured(): array
     {
-        return array_keys(static::$_config);
+        return array_keys(static::$config);
     }
 
     /**

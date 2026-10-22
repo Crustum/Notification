@@ -45,33 +45,26 @@ class NotificationCommand extends BakeCommand
      * @param \Cake\Console\ConsoleIo $io The console io
      * @return int|null The exit code or null for success
      */
-    public function execute(Arguments $args, ConsoleIo $io): ?int
+    public function execute(): ?int
     {
-        $name = $args->getArgumentAt(0);
-
+        $name = $this->args->getArgumentAt(0);
         if (empty($name)) {
-            $io->err('<error>You must provide a notification name.</error>');
-            $io->out('Example: bin/cake bake notification UserMentioned');
+            $this->io->err('<error>You must provide a notification name.</error>');
+            $this->io->out('Example: bin/cake bake notification UserMentioned');
 
             return static::CODE_ERROR;
         }
-
-        $name = $this->_getName($name);
-
+        $name = $this->getName($name);
         if (!str_ends_with($name, 'Notification')) {
             $name .= 'Notification';
         }
-
-        $content = $this->getContent($name, $args, $io);
-
+        $content = $this->getContent($name);
         if (empty($content)) {
-            $io->err("<warning>No generated content for '{$name}', not generating template.</warning>");
+            $this->io->err("<warning>No generated content for '{$name}', not generating template.</warning>");
 
             return static::CODE_ERROR;
         }
-
-        $this->bake($name, $args, $io, $content);
-
+        $this->bake($name, $content);
         return static::CODE_SUCCESS;
     }
 
@@ -84,24 +77,24 @@ class NotificationCommand extends BakeCommand
      * @param string|true $content Content to write
      * @return void
      */
-    public function bake(string $name, Arguments $args, ConsoleIo $io, string|bool $content): void
+    public function bake(string $name, string|bool $content): void
     {
-        $path = $this->getPath($args);
+        $path = $this->getPath();
         $filename = $path . $name . '.php';
-        $io->out("\n" . sprintf('Baking notification class for %s...', $name), 1, ConsoleIo::QUIET);
+        $this->io->out("\n" . sprintf('Baking notification class for %s...', $name), 1, ConsoleIo::QUIET);
 
-        if (is_string($content) && $args->getOption('verbose')) {
-            $io->out($content);
+        if (is_string($content) && $this->args->getOption('verbose')) {
+            $this->io->out($content);
         }
 
         if (is_string($content)) {
-            $forceOption = $args->getOption('force');
+            $forceOption = $this->args->getOption('force');
             $force = is_bool($forceOption) && $forceOption;
-            $io->createFile($filename, $content, $force);
+            $this->io->createFile($filename, $content, $force);
         }
 
         $emptyFile = $path . '.gitkeep';
-        $this->deleteEmptyFile($emptyFile, $io);
+        $this->deleteEmptyFile($emptyFile);
     }
 
     /**
@@ -112,15 +105,15 @@ class NotificationCommand extends BakeCommand
      * @param \Cake\Console\ConsoleIo $io Console io
      * @return string|bool Generated content
      */
-    public function getContent(string $name, Arguments $args, ConsoleIo $io): string|bool
+    public function getContent(string $name): string|bool
     {
         $namespace = Configure::read('App.namespace');
         if ($this->plugin) {
-            $namespace = $this->_pluginNamespace($this->plugin);
+            $namespace = $this->pluginNamespace($this->plugin);
         }
 
         $notificationName = $this->getNotificationNameFromClass($name);
-        $selectedChannels = $this->getSelectedChannels($args, $io);
+        $selectedChannels = $this->getSelectedChannels();
         $channelData = $this->discoverChannelData($selectedChannels);
 
         $vars = [
@@ -131,7 +124,7 @@ class NotificationCommand extends BakeCommand
             'channelData' => $channelData,
         ];
 
-        $themeOption = $args->getOption('theme');
+        $themeOption = $this->args->getOption('theme');
         $theme = is_string($themeOption) ? $themeOption : null;
         $renderer = new TemplateRenderer($theme);
         $renderer->set('plugin', $this->plugin);
@@ -148,18 +141,16 @@ class NotificationCommand extends BakeCommand
      * @param \Cake\Console\Arguments $args Arguments instance to read the prefix option from
      * @return string Path to output
      */
-    public function getPath(Arguments $args): string
+    public function getPath(): string
     {
         $path = APP . $this->pathFragment;
         if ($this->plugin) {
-            $path = $this->_pluginPath($this->plugin) . 'src/' . $this->pathFragment;
+            $path = $this->pluginPath($this->plugin) . 'src/' . $this->pathFragment;
         }
-
-        $prefix = $this->getPrefix($args);
+        $prefix = $this->getPrefix();
         if ($prefix !== '' && $prefix !== '0') {
             $path .= $prefix . DIRECTORY_SEPARATOR;
         }
-
         return str_replace('/', DIRECTORY_SEPARATOR, $path);
     }
 
@@ -171,7 +162,7 @@ class NotificationCommand extends BakeCommand
      */
     protected function buildOptionParser(ConsoleOptionParser $parser): ConsoleOptionParser
     {
-        $parser = $this->_setCommonOptions($parser);
+        $parser = $this->setCommonOptions($parser);
         $parser->setDescription(static::getDescription())
             ->addArgument('name', [
                 'help' => 'Name of the notification class to generate (e.g., UserMentioned, OrderShipped). "Notification" suffix will be added automatically.',
@@ -231,10 +222,9 @@ class NotificationCommand extends BakeCommand
      * @param \Cake\Console\ConsoleIo $io Console IO
      * @return array<string> Selected channel names
      */
-    protected function getSelectedChannels(Arguments $args, ConsoleIo $io): array
+    protected function getSelectedChannels(): array
     {
-        $channelsOption = (string)$args->getOption('channels');
-
+        $channelsOption = (string)$this->args->getOption('channels');
         if ($channelsOption !== '' && $channelsOption !== '0') {
             if ($channelsOption === 'all') {
                 return array_keys($this->getAvailableChannels());
@@ -242,17 +232,13 @@ class NotificationCommand extends BakeCommand
 
             return array_map(trim(...), explode(',', $channelsOption));
         }
-
         $available = $this->getAvailableChannels();
         $channelNames = array_keys($available);
-
-        $io->out('<info>Available channels:</info> ' . implode(', ', $channelNames));
-        $selection = $io->ask('Select channels (comma-separated or "all")', 'database');
-
+        $this->io->out('<info>Available channels:</info> ' . implode(', ', $channelNames));
+        $selection = $this->io->ask('Select channels (comma-separated or "all")', 'database');
         if ($selection === 'all') {
             return $channelNames;
         }
-
         return array_map(trim(...), explode(',', $selection));
     }
 

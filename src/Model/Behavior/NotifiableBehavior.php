@@ -25,7 +25,7 @@ use Cake\ORM\Behavior;
  * }
  * ```
  *
- * @property \Cake\ORM\Table $_table
+ * @property \Cake\ORM\Table $table
  */
 class NotifiableBehavior extends Behavior
 {
@@ -34,7 +34,7 @@ class NotifiableBehavior extends Behavior
      *
      * @var array<string, mixed>
      */
-    protected array $_defaultConfig = [];
+    protected array $defaultConfig = [];
 
     /**
      * Initialize hook
@@ -49,9 +49,9 @@ class NotifiableBehavior extends Behavior
     {
         parent::initialize($config);
 
-        $modelName = $this->_table->getAlias();
+        $modelName = $this->table->getAlias();
 
-        $this->_table->hasMany('Notifications', [
+        $this->table->hasMany('Notifications', [
             'className' => 'Crustum/Notification.Notifications',
             'foreignKey' => 'foreign_key',
             'conditions' => ['Notifications.model' => $modelName],

@@ -69,9 +69,8 @@ class NotifiableBehaviorTest extends TestCase
         $table->addBehavior('Crustum/Notification.Notifiable');
 
         $behavior = $table->getBehavior('Notifiable');
-        $implementedMethods = $behavior->implementedMethods();
 
-        $this->assertEmpty($implementedMethods);
+        $this->assertSame([], $behavior->implementedFinders());
     }
 
     /**

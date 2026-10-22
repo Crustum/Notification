@@ -104,11 +104,13 @@ class NotificationCommandTest extends TestCase
         $command = new NotificationCommand();
         $args = new Arguments([], ['channels' => 'database,mail'], []);
         $io = $this->createStub(ConsoleIo::class);
+        $command->setArgs($args);
+        $command->setIo($io);
 
         $reflection = new ReflectionClass($command);
         $method = $reflection->getMethod('getSelectedChannels');
 
-        $result = $method->invoke($command, $args, $io);
+        $result = $method->invoke($command);
 
         $this->assertContains('database', $result);
         $this->assertContains('mail', $result);
@@ -124,11 +126,13 @@ class NotificationCommandTest extends TestCase
         $command = new NotificationCommand();
         $args = new Arguments([], ['channels' => 'all'], []);
         $io = $this->createStub(ConsoleIo::class);
+        $command->setArgs($args);
+        $command->setIo($io);
 
         $reflection = new ReflectionClass($command);
         $method = $reflection->getMethod('getSelectedChannels');
 
-        $result = $method->invoke($command, $args, $io);
+        $result = $method->invoke($command);
 
         $this->assertContains('database', $result);
         $this->assertContains('mail', $result);
@@ -246,7 +250,10 @@ class NotificationCommandTest extends TestCase
             ->method('out')
             ->with($this->stringContains('Example:'));
 
-        $result = $command->execute($args, $io);
+        $command->setArgs($args);
+        $command->setIo($io);
+
+        $result = $command->execute();
 
         $this->assertEquals(NotificationCommand::CODE_ERROR, $result);
     }

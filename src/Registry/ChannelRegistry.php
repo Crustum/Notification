@@ -25,7 +25,7 @@ class ChannelRegistry extends ObjectRegistry
      *
      * @var bool
      */
-    protected static bool $_discoveryDispatched = false;
+    protected static bool $discoveryDispatched = false;
 
     /**
      * Dispatch channel discovery event
@@ -37,7 +37,7 @@ class ChannelRegistry extends ObjectRegistry
      */
     public function dispatchDiscoveryEvent(): void
     {
-        if (static::$_discoveryDispatched) {
+        if (static::$discoveryDispatched) {
             return;
         }
 
@@ -45,7 +45,7 @@ class ChannelRegistry extends ObjectRegistry
             new Event('Notification.Registry.discover', $this),
         );
 
-        static::$_discoveryDispatched = true;
+        static::$discoveryDispatched = true;
     }
 
     /**
@@ -56,7 +56,7 @@ class ChannelRegistry extends ObjectRegistry
      * @param string $class Partial classname to resolve
      * @return class-string<\Crustum\Notification\Channel\ChannelInterface>|null Either the correct classname or null
      */
-    protected function _resolveClassName(string $class): ?string
+    protected function resolveClassName(string $class): ?string
     {
         /** @var class-string<\Crustum\Notification\Channel\ChannelInterface>|null */
         return App::className($class, 'Channel', 'Channel');
@@ -72,7 +72,7 @@ class ChannelRegistry extends ObjectRegistry
      * @return void
      * @throws \BadMethodCallException
      */
-    protected function _throwMissingClassError(string $class, ?string $plugin): void
+    protected function throwMissingClassError(string $class, ?string $plugin): void
     {
         throw new BadMethodCallException(sprintf('Notification channel `%s` is not available.', $class));
     }
@@ -87,7 +87,7 @@ class ChannelRegistry extends ObjectRegistry
      * @param array<string, mixed> $config An array of settings to use for the channel
      * @return \Crustum\Notification\Channel\ChannelInterface The constructed ChannelInterface class
      */
-    protected function _create(object|string $class, string $alias, array $config): ChannelInterface
+    protected function create(object|string $class, string $alias, array $config): ChannelInterface
     {
         if (is_object($class)) {
             return $class;
@@ -102,9 +102,9 @@ class ChannelRegistry extends ObjectRegistry
      * @param string $name The channel name
      * @return $this
      */
-    public function unload(string $name)
+    public function unload(string $name): static
     {
-        unset($this->_loaded[$name]);
+        unset($this->loaded[$name]);
 
         return $this;
     }

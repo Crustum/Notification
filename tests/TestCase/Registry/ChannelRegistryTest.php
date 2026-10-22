@@ -27,7 +27,7 @@ class ChannelRegistryTest extends TestCase
         parent::setUp();
 
         $reflection = new ReflectionClass(ChannelRegistry::class);
-        $property = $reflection->getProperty('_discoveryDispatched');
+        $property = $reflection->getProperty('discoveryDispatched');
         $property->setValue(null, false);
     }
 

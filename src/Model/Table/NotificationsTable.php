@@ -149,7 +149,7 @@ class NotificationsTable extends Table
     {
         $notification = $this->get($id);
         if ($notification->read_at === null) {
-            $notification->read_at = new DateTime();
+            $notification->set('read_at', new DateTime());
 
             return (bool)$this->save($notification);
         }
@@ -203,7 +203,7 @@ class NotificationsTable extends Table
     {
         $notification = $this->get($id);
         if ($notification->read_at !== null) {
-            $notification->read_at = null;
+            $notification->set('read_at', null);
 
             return (bool)$this->save($notification);
         }

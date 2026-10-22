@@ -12,25 +12,46 @@ use Cake\ORM\Entity;
  * Represents a single notification record in the database.
  * Provides methods for marking notifications as read/unread and checking read status.
  *
- * @property string $id Unique notification identifier (UUID)
- * @property string $model The model name that owns this notification (e.g., "Users", "Posts")
- * @property string $foreign_key The foreign key value of the notifiable entity
- * @property string $type The fully qualified notification class name
- * @property array<string, mixed> $data The notification payload data stored as JSON
- * @property \Cake\I18n\DateTime|null $read_at Timestamp when notification was marked as read
- * @property \Cake\I18n\DateTime $created Creation timestamp
- * @property \Cake\I18n\DateTime $modified Last modification timestamp
- * @property bool $is_read Virtual property indicating if notification has been read
- * @property bool $is_unread Virtual property indicating if notification is unread
+ * Uses CakePHP 6 hooked entity properties: concrete typed properties with
+ * `public protected(set)` visibility. Reads via `$entity->field` hit the
+ * property directly; writes still flow through `set()` for dirty tracking,
+ * so entity internals must use `$this->set()` instead of direct assignment.
  */
 class Notification extends Entity
 {
+    public protected(set) string $id;
+
+    public protected(set) string $model;
+
+    public protected(set) string $foreign_key;
+
+    public protected(set) string $type;
+
+    /**
+     * @var array<string, mixed>
+     */
+    public protected(set) array $data = [];
+
+    public protected(set) ?DateTime $read_at = null;
+
+    public protected(set) ?DateTime $created = null;
+
+    public protected(set) ?DateTime $modified = null;
+
+    public bool $is_read {
+        get => $this->read_at !== null;
+    }
+
+    public bool $is_unread {
+        get => $this->read_at === null;
+    }
+
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity()
      *
      * @var array<string, bool>
      */
-    protected array $_accessible = [
+    protected array $patchable = [
         'model' => true,
         'foreign_key' => true,
         'type' => true,
@@ -45,37 +66,17 @@ class Notification extends Entity
      *
      * @var array<string>
      */
-    protected array $_hidden = [];
+    protected array $hidden = [];
 
     /**
      * Virtual fields that should be exposed
      *
      * @var array<string>
      */
-    protected array $_virtual = [
+    protected array $virtual = [
         'is_read',
         'is_unread',
     ];
-
-    /**
-     * Get the is_read virtual property value
-     *
-     * @return bool True if notification has been read, false otherwise
-     */
-    protected function _getIsRead(): bool
-    {
-        return $this->read_at !== null;
-    }
-
-    /**
-     * Get the is_unread virtual property value
-     *
-     * @return bool True if notification is unread, false otherwise
-     */
-    protected function _getIsUnread(): bool
-    {
-        return $this->read_at === null;
-    }
 
     /**
      * Mark this notification as read by setting the read_at timestamp
@@ -85,7 +86,7 @@ class Notification extends Entity
     public function markAsRead(): bool
     {
         if ($this->read_at === null) {
-            $this->read_at = new DateTime();
+            $this->set('read_at', new DateTime());
 
             return true;
         }
@@ -101,7 +102,7 @@ class Notification extends Entity
     public function markAsUnread(): bool
     {
         if ($this->read_at !== null) {
-            $this->read_at = null;
+            $this->set('read_at', null);
 
             return true;
         }

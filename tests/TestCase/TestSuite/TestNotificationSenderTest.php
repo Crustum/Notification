@@ -6,6 +6,7 @@ namespace Crustum\Notification\Test\TestCase\TestSuite;
 use Cake\TestSuite\TestCase;
 use Crustum\Notification\NotificationManager;
 use Crustum\Notification\TestSuite\TestNotificationSender;
+use Override;
 use TestApp\Model\Table\UsersTable;
 use TestApp\Notification\PostPublished;
 
@@ -23,6 +24,7 @@ class TestNotificationSenderTest extends TestCase
      *
      * @var array<string>
      */
+    #[Override]
     protected array $fixtures = [
         'plugin.Crustum/Notification.Users',
         'plugin.Crustum/Notification.Posts',

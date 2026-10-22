@@ -37,6 +37,6 @@ class DatabaseOnlyNotification extends Notification
      */
     public function toDatabase(EntityInterface|AnonymousNotifiable $notifiable): DatabaseMessage
     {
-        return (new DatabaseMessage())->data(['post_id' => 3]);
+        return new DatabaseMessage()->data(['post_id' => 3]);
     }
 }

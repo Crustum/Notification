@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace TestApp\Model\Entity;
 
 use Cake\ORM\Entity;
+use Override;
 
 /**
  * Post Entity
@@ -25,6 +26,7 @@ class Post extends Entity
      *
      * @var array<string, bool>
      */
+    #[Override]
     protected array $patchable = [
         'user_id' => true,
         'title' => true,

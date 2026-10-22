@@ -6,6 +6,7 @@ namespace Crustum\Notification\View\Helper;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\View\Helper;
 use Crustum\Notification\Model\Entity\Notification;
+use Override;
 use Throwable;
 
 /**
@@ -24,6 +25,7 @@ class NotificationsHelper extends Helper
      *
      * @var array<string>
      */
+    #[Override]
     protected array $helpers = ['Html', 'Url', 'Form'];
 
     /**
@@ -31,6 +33,7 @@ class NotificationsHelper extends Helper
      *
      * @var array<string, mixed>
      */
+    #[Override]
     protected array $defaultConfig = [];
 
     /**
@@ -151,7 +154,7 @@ class NotificationsHelper extends Helper
      */
     public function formatNotificationData(Notification $notification): string
     {
-        if (empty($notification->data)) {
+        if ($notification->data === []) {
             return '';
         }
 

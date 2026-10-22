@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Crustum\Notification\Test\Fixture;
 
 use Cake\TestSuite\Fixture\TestFixture;
+use Override;
 
 /**
  * Notifications Fixture
@@ -24,6 +25,7 @@ class NotificationsFixture extends TestFixture
      *
      * @var array<array<string, mixed>>
      */
+    #[Override]
     public array $records = [
         [
             'id' => 'notification-read-1',

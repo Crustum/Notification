@@ -132,7 +132,7 @@ class NotificationManager
             return $registry->get($name);
         }
 
-        static::_buildChannel($name);
+        static::buildChannel($name);
 
         return $registry->get($name);
     }
@@ -144,7 +144,7 @@ class NotificationManager
      * @return void
      * @throws \InvalidArgumentException When channel configuration is missing
      */
-    protected static function _buildChannel(string $name): void
+    protected static function buildChannel(string $name): void
     {
         $registry = static::getRegistry();
 
@@ -331,7 +331,7 @@ class NotificationManager
      */
     public static function route(string $channel, mixed $route): AnonymousNotifiable
     {
-        return (new AnonymousNotifiable())->route($channel, $route);
+        return new AnonymousNotifiable()->route($channel, $route);
     }
 
     /**

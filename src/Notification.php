@@ -119,7 +119,7 @@ abstract class Notification
      * @param string $locale Locale code
      * @return $this
      */
-    public function locale(string $locale)
+    public function locale(string $locale): static
     {
         $this->locale = $locale;
 
@@ -142,7 +142,7 @@ abstract class Notification
      * @param string $queue Queue name
      * @return $this
      */
-    public function onQueue(string $queue)
+    public function onQueue(string $queue): static
     {
         $this->queue = $queue;
 
@@ -165,7 +165,7 @@ abstract class Notification
      * @param string $connection Connection name
      * @return $this
      */
-    public function onConnection(string $connection)
+    public function onConnection(string $connection): static
     {
         $this->connection = $connection;
 
@@ -188,7 +188,7 @@ abstract class Notification
      * @param int $seconds Delay in seconds
      * @return $this
      */
-    public function delay(int $seconds)
+    public function delay(int $seconds): static
     {
         $this->delay = $seconds;
 
@@ -211,7 +211,7 @@ abstract class Notification
      * @param bool $value True to drop the job quietly when the notifiable row is gone
      * @return $this
      */
-    public function deleteWhenMissingModels(bool $value = true)
+    public function deleteWhenMissingModels(bool $value = true): static
     {
         $this->deleteWhenMissingModels = $value;
 
@@ -234,7 +234,7 @@ abstract class Notification
      * @param bool $value True to fail the job on timeout
      * @return $this
      */
-    public function failOnTimeout(bool $value = true)
+    public function failOnTimeout(bool $value = true): static
     {
         $this->failOnTimeout = $value;
 

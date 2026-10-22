@@ -5,6 +5,7 @@ namespace TestApp\Model\Entity;
 
 use Cake\ORM\Entity;
 use Crustum\Notification\Notification;
+use Override;
 
 /**
  * User Entity
@@ -28,6 +29,7 @@ class User extends Entity
      *
      * @var array<string, bool>
      */
+    #[Override]
     protected array $patchable = [
         'username' => true,
         'email' => true,

@@ -75,7 +75,7 @@ class NotificationManagerTest extends TestCase
      */
     public function testChannelWorksWithBackedEnum(): void
     {
-        $channel = NotificationManager::channel(TestChannelName::Database);
+        $channel = NotificationManager::channel(TestChannelNameEnum::Database);
 
         $this->assertInstanceOf(DatabaseChannel::class, $channel);
     }
@@ -87,7 +87,7 @@ class NotificationManagerTest extends TestCase
      */
     public function testChannelWorksWithUnitEnum(): void
     {
-        $channel = NotificationManager::channel(TestUnitChannelName::mail);
+        $channel = NotificationManager::channel(TestUnitChannelNameEnum::mail);
 
         $this->assertInstanceOf(MailChannel::class, $channel);
     }

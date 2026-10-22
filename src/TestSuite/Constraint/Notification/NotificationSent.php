@@ -23,13 +23,7 @@ class NotificationSent extends NotificationConstraintBase
         $notificationClass = $other;
         $notifications = $this->getNotifications();
 
-        foreach ($notifications as $notification) {
-            if ($notification['notification_class'] === $notificationClass) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($notifications, fn(array $notification): bool => $notification['notification_class'] === $notificationClass);
     }
 
     /**

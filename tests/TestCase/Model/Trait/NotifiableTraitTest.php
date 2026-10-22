@@ -9,6 +9,7 @@ use Cake\TestSuite\TestCase;
 use Crustum\Notification\Model\Entity\Notification as NotificationEntity;
 use Crustum\Notification\NotificationManager;
 use Crustum\Notification\Test\TestCase\TestDatabaseNotification;
+use Override;
 use TestApp\Model\Table\UsersTable;
 
 /**
@@ -23,6 +24,7 @@ class NotifiableTraitTest extends TestCase
      *
      * @var array<string>
      */
+    #[Override]
     protected array $fixtures = [
         'plugin.Crustum/Notification.Notifications',
     ];

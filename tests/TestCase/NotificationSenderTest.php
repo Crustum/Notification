@@ -12,6 +12,7 @@ use Crustum\Notification\Job\SendQueuedNotificationJob;
 use Crustum\Notification\Model\Entity\Notification as NotificationEntity;
 use Crustum\Notification\NotificationManager;
 use Crustum\Notification\NotificationSender;
+use Override;
 use ReflectionClass;
 use Throwable;
 
@@ -29,6 +30,7 @@ class NotificationSenderTest extends TestCase
      *
      * @var array<string>
      */
+    #[Override]
     protected array $fixtures = [
         'plugin.Crustum/Notification.Notifications',
         'plugin.Crustum/Notification.Users',

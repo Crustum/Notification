@@ -35,17 +35,9 @@ class NotificationSentTo extends NotificationConstraintBase
 
         $notifications = $this->getNotifications();
 
-        foreach ($notifications as $notification) {
-            if (
-                $notification['notifiable_class'] === $notifiableClass &&
-                $notification['notifiable_id'] === $notifiableId &&
-                $notification['notification_class'] === $notificationClass
-            ) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($notifications, fn(array $notification): bool => $notification['notifiable_class'] === $notifiableClass &&
+        $notification['notifiable_id'] === $notifiableId &&
+        $notification['notification_class'] === $notificationClass);
     }
 
     /**

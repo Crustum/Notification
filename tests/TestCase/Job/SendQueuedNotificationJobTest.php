@@ -12,6 +12,7 @@ use Crustum\Notification\NotificationManager;
 use Crustum\Notification\Test\TestCase\TestFailOnTimeoutNotification;
 use DateTime;
 use Interop\Queue\Processor;
+use Override;
 
 /**
  * SendQueuedNotificationJob Test Case
@@ -32,6 +33,7 @@ class SendQueuedNotificationJobTest extends TestCase
      *
      * @var array<string>
      */
+    #[Override]
     protected array $fixtures = [
         'plugin.Crustum/Notification.Users',
         'plugin.Crustum/Notification.Notifications',
@@ -210,7 +212,7 @@ class SendQueuedNotificationJobTest extends TestCase
      */
     public function testExecuteAcksWhenMissingNotifiableAndDeleteWhenMissingModels(): void
     {
-        $notification = (new TestJobNotification('Test Title'))->deleteWhenMissingModels();
+        $notification = new TestJobNotification('Test Title')->deleteWhenMissingModels();
         $serialized = serialize($notification);
 
         $message = $this->createMessage([

@@ -25,16 +25,8 @@ class OnDemandNotificationSent extends NotificationConstraintBase
         $notificationClass = $other;
         $notifications = $this->getNotifications();
 
-        foreach ($notifications as $notification) {
-            if (
-                $notification['notifiable'] instanceof AnonymousNotifiable &&
-                $notification['notification_class'] === $notificationClass
-            ) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($notifications, fn(array $notification): bool => $notification['notifiable'] instanceof AnonymousNotifiable &&
+        $notification['notification_class'] === $notificationClass);
     }
 
     /**

@@ -25,16 +25,8 @@ class NotificationSentToChannel extends NotificationConstraintBase
 
         $notifications = $this->getNotifications();
 
-        foreach ($notifications as $notification) {
-            if (
-                $notification['notification_class'] === $notificationClass &&
-                in_array($channel, $notification['channels'])
-            ) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($notifications, fn(array $notification): bool => $notification['notification_class'] === $notificationClass &&
+        in_array($channel, $notification['channels']));
     }
 
     /**

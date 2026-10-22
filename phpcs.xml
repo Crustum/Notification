@@ -12,4 +12,15 @@
     <rule ref="Generic.WhiteSpace.ScopeIndent.Incorrect">
         <exclude-pattern>templates/*</exclude-pattern>
     </rule>
+    <!-- PHP 8.4 property hooks (used by hooked entities, see #19381) are misparsed
+         as class-level code by these pre-hooks sniffs. Scoped to hooked entity files only. -->
+    <rule ref="PSR2.Classes.PropertyDeclaration.Multiple">
+        <exclude-pattern>*/src/Model/Entity/Notification.php</exclude-pattern>
+    </rule>
+    <rule ref="PSR2.Classes.PropertyDeclaration.ScopeMissing">
+        <exclude-pattern>*/src/Model/Entity/Notification.php</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.Scope.MemberVarScope">
+        <exclude-pattern>*/src/Model/Entity/Notification.php</exclude-pattern>
+    </rule>
 </ruleset>

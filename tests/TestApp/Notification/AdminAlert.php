@@ -60,7 +60,7 @@ class AdminAlert extends Notification
      */
     public function toDatabase(EntityInterface|AnonymousNotifiable $notifiable): DatabaseMessage
     {
-        return (new DatabaseMessage())->data([
+        return new DatabaseMessage()->data([
             'message' => $this->alertMessage,
             'level' => $this->level,
         ]);

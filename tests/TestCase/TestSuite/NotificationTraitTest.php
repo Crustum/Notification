@@ -6,6 +6,7 @@ namespace Crustum\Notification\Test\TestCase\TestSuite;
 use Cake\TestSuite\TestCase;
 use Crustum\Notification\NotificationManager;
 use Crustum\Notification\TestSuite\NotificationTrait;
+use Override;
 use TestApp\Model\Entity\User;
 use TestApp\Model\Table\UsersTable;
 use TestApp\Notification\AdminAlert;
@@ -30,6 +31,7 @@ class NotificationTraitTest extends TestCase
      *
      * @var array<string>
      */
+    #[Override]
     protected array $fixtures = [
         'plugin.Crustum/Notification.Users',
         'plugin.Crustum/Notification.Posts',
@@ -313,7 +315,9 @@ class NotificationTraitTest extends TestCase
         $onDemandNotifications = $this->getOnDemandNotifications();
 
         $this->assertCount(1, $onDemandNotifications);
-        $firstNotification = array_values($onDemandNotifications)[0];
+        $firstNotification = array_first($onDemandNotifications);
+        $this->assertNotNull($firstNotification);
+        $this->assertArrayHasKey('notification_class', $firstNotification);
         $this->assertEquals(AdminAlert::class, $firstNotification['notification_class']);
     }
 

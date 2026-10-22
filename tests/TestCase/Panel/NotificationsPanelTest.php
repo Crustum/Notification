@@ -180,7 +180,7 @@ class NotificationsPanelTest extends TestCase
      */
     public function testAnonymousDestination(): void
     {
-        $notifiable = (new AnonymousNotifiable())->route('mail', 'ops@example.com');
+        $notifiable = new AnonymousNotifiable()->route('mail', 'ops@example.com');
         $notification = new SimpleNotification();
         $this->dispatch('Model.Notification.sending', $notifiable, $notification, 'mail');
         $this->dispatch('Model.Notification.sent', $notifiable, $notification, 'mail');

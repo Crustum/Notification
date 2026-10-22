@@ -52,7 +52,7 @@ class UserRegistered extends Notification
      */
     public function toDatabase(EntityInterface|AnonymousNotifiable $notifiable): DatabaseMessage
     {
-        return (new DatabaseMessage())->data([
+        return new DatabaseMessage()->data([
             'username' => $this->username,
             'message' => "Welcome {$this->username}!",
         ]);

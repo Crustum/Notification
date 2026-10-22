@@ -5,6 +5,7 @@ namespace Crustum\Notification\Test\TestCase\Model\Table;
 
 use Cake\TestSuite\TestCase;
 use Crustum\Notification\Model\Table\NotificationsTable;
+use Override;
 
 /**
  * NotificationsTable Test Case
@@ -18,6 +19,7 @@ class NotificationsTableTest extends TestCase
      *
      * @var array<string>
      */
+    #[Override]
     protected array $fixtures = [
         'plugin.Crustum/Notification.Notifications',
     ];

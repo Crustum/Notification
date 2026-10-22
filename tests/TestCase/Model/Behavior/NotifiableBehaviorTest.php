@@ -5,6 +5,7 @@ namespace Crustum\Notification\Test\TestCase\Model\Behavior;
 
 use Cake\ORM\Association\HasMany;
 use Cake\TestSuite\TestCase;
+use Override;
 
 /**
  * NotifiableBehavior Test Case
@@ -18,6 +19,7 @@ class NotifiableBehaviorTest extends TestCase
      *
      * @var array<string>
      */
+    #[Override]
     protected array $fixtures = [
         'plugin.Crustum/Notification.Notifications',
     ];

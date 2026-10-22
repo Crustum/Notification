@@ -61,7 +61,7 @@ class PostPublished extends Notification
      */
     public function toDatabase(EntityInterface|AnonymousNotifiable $notifiable): DatabaseMessage
     {
-        return (new DatabaseMessage())->data([
+        return new DatabaseMessage()->data([
             'post_id' => $this->postId,
             'post_title' => $this->postTitle,
             'message' => "Your post '{$this->postTitle}' has been published",

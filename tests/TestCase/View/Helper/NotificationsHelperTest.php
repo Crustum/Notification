@@ -8,6 +8,7 @@ use Cake\View\View;
 use Crustum\Notification\Model\Entity\Notification;
 use Crustum\Notification\Test\TestCase\TestNotification;
 use Crustum\Notification\View\Helper\NotificationsHelper;
+use Override;
 
 /**
  * NotificationsHelper Test Case
@@ -35,6 +36,7 @@ class NotificationsHelperTest extends TestCase
      *
      * @var array<string>
      */
+    #[Override]
     protected array $fixtures = [
         'plugin.Crustum/Notification.Notifications',
     ];

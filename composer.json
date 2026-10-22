@@ -21,6 +21,7 @@
         "cakedc/cakephp-phpstan": "5.next-cake6-dev",
         "cakephp/bake": "4.x-dev",
         "cakephp/cakephp-codesniffer": "6.x-dev",
+        "crustum/debug-bar": "2.x-dev",
         "crustum/plugin-manifest": "2.x-dev",
         "phpstan/phpstan": "^2.3",
         "phpunit/phpunit": "^12.5.0 | ^13.0",

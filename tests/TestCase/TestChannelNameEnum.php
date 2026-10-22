@@ -6,7 +6,7 @@ namespace Crustum\Notification\Test\TestCase;
 /**
  * Backed enum channel names for NotificationManager tests
  */
-enum TestChannelName: string
+enum TestChannelNameEnum: string
 {
     case Database = 'database';
     case Mail = 'mail';

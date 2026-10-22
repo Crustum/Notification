@@ -6,6 +6,7 @@ namespace Crustum\Notification\Test\TestCase\Channel;
 use Cake\ORM\Entity;
 use Cake\TestSuite\TestCase;
 use Crustum\Notification\Channel\DatabaseChannel;
+use Override;
 
 /**
  * DatabaseChannel Test Case
@@ -19,6 +20,7 @@ class DatabaseChannelTest extends TestCase
      *
      * @var array<string>
      */
+    #[Override]
     protected array $fixtures = [
         'plugin.Crustum/Notification.Notifications',
     ];

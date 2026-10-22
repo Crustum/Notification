@@ -5,7 +5,6 @@ namespace Crustum\Notification\Command;
 
 use Bake\Command\BakeCommand;
 use Bake\Utility\TemplateRenderer;
-use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
@@ -36,13 +35,12 @@ class NotificationCommand extends BakeCommand
      *
      * @var string
      */
+    #[Override]
     public string $pathFragment = 'Notification/';
 
     /**
      * Execute the command
      *
-     * @param \Cake\Console\Arguments $args The command arguments
-     * @param \Cake\Console\ConsoleIo $io The console io
      * @return int|null The exit code or null for success
      */
     public function execute(): ?int
@@ -54,17 +52,21 @@ class NotificationCommand extends BakeCommand
 
             return static::CODE_ERROR;
         }
-        $name = $this->getName($name);
+
+        $name = $this->getName();
         if (!str_ends_with($name, 'Notification')) {
             $name .= 'Notification';
         }
+
         $content = $this->getContent($name);
         if (empty($content)) {
             $this->io->err("<warning>No generated content for '{$name}', not generating template.</warning>");
 
             return static::CODE_ERROR;
         }
+
         $this->bake($name, $content);
+
         return static::CODE_SUCCESS;
     }
 
@@ -72,9 +74,7 @@ class NotificationCommand extends BakeCommand
      * Assembles and writes the notification file
      *
      * @param string $name Notification name
-     * @param \Cake\Console\Arguments $args CLI arguments
-     * @param \Cake\Console\ConsoleIo $io Console io
-     * @param string|true $content Content to write
+     * @param string|bool $content Content to write
      * @return void
      */
     public function bake(string $name, string|bool $content): void
@@ -101,8 +101,6 @@ class NotificationCommand extends BakeCommand
      * Get content for notification class
      *
      * @param string $name Notification name
-     * @param \Cake\Console\Arguments $args CLI arguments
-     * @param \Cake\Console\ConsoleIo $io Console io
      * @return string|bool Generated content
      */
     public function getContent(string $name): string|bool
@@ -138,7 +136,6 @@ class NotificationCommand extends BakeCommand
      *
      * Checks the plugin property and returns the correct path.
      *
-     * @param \Cake\Console\Arguments $args Arguments instance to read the prefix option from
      * @return string Path to output
      */
     public function getPath(): string
@@ -147,10 +144,12 @@ class NotificationCommand extends BakeCommand
         if ($this->plugin) {
             $path = $this->pluginPath($this->plugin) . 'src/' . $this->pathFragment;
         }
+
         $prefix = $this->getPrefix();
         if ($prefix !== '' && $prefix !== '0') {
             $path .= $prefix . DIRECTORY_SEPARATOR;
         }
+
         return str_replace('/', DIRECTORY_SEPARATOR, $path);
     }
 
@@ -218,8 +217,6 @@ class NotificationCommand extends BakeCommand
     /**
      * Get selected channels from arguments or user input
      *
-     * @param \Cake\Console\Arguments $args CLI arguments
-     * @param \Cake\Console\ConsoleIo $io Console IO
      * @return array<string> Selected channel names
      */
     protected function getSelectedChannels(): array
@@ -232,6 +229,7 @@ class NotificationCommand extends BakeCommand
 
             return array_map(trim(...), explode(',', $channelsOption));
         }
+
         $available = $this->getAvailableChannels();
         $channelNames = array_keys($available);
         $this->io->out('<info>Available channels:</info> ' . implode(', ', $channelNames));
@@ -239,6 +237,7 @@ class NotificationCommand extends BakeCommand
         if ($selection === 'all') {
             return $channelNames;
         }
+
         return array_map(trim(...), explode(',', $selection));
     }
 

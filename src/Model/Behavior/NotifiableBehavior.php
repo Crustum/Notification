@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Crustum\Notification\Model\Behavior;
 
 use Cake\ORM\Behavior;
+use Override;
 
 /**
  * Notifiable Behavior
@@ -34,6 +35,7 @@ class NotifiableBehavior extends Behavior
      *
      * @var array<string, mixed>
      */
+    #[Override]
     protected array $defaultConfig = [];
 
     /**

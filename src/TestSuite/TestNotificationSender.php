@@ -183,7 +183,7 @@ final class TestNotificationSender extends NotificationSender
     public static function getNotificationsFor(object $notifiable, string $notificationClass): array
     {
         $notifiableClass = $notifiable::class;
-        $notifiableId = (new self())->getNotifiableKey($notifiable);
+        $notifiableId = new self()->getNotifiableKey($notifiable);
 
         return array_filter(
             self::$notifications,

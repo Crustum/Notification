@@ -5,6 +5,7 @@ namespace Crustum\Notification\Model\Entity;
 
 use Cake\I18n\DateTime;
 use Cake\ORM\Entity;
+use Override;
 
 /**
  * Notification Entity
@@ -39,11 +40,11 @@ class Notification extends Entity
     public protected(set) ?DateTime $modified = null;
 
     public bool $is_read {
-        get => $this->read_at !== null;
+        get => $this->read_at instanceof DateTime;
     }
 
     public bool $is_unread {
-        get => $this->read_at === null;
+        get => !$this->read_at instanceof DateTime;
     }
 
     /**
@@ -51,6 +52,7 @@ class Notification extends Entity
      *
      * @var array<string, bool>
      */
+    #[Override]
     protected array $patchable = [
         'model' => true,
         'foreign_key' => true,
@@ -66,6 +68,7 @@ class Notification extends Entity
      *
      * @var array<string>
      */
+    #[Override]
     protected array $hidden = [];
 
     /**
@@ -73,6 +76,7 @@ class Notification extends Entity
      *
      * @var array<string>
      */
+    #[Override]
     protected array $virtual = [
         'is_read',
         'is_unread',
@@ -85,7 +89,7 @@ class Notification extends Entity
      */
     public function markAsRead(): bool
     {
-        if ($this->read_at === null) {
+        if (!$this->read_at instanceof DateTime) {
             $this->set('read_at', new DateTime());
 
             return true;
@@ -101,7 +105,7 @@ class Notification extends Entity
      */
     public function markAsUnread(): bool
     {
-        if ($this->read_at !== null) {
+        if ($this->read_at instanceof DateTime) {
             $this->set('read_at', null);
 
             return true;

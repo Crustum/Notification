@@ -90,8 +90,8 @@
     },
     "repositories": [
         {
-            "type": "path",
-            "url": "../Queue"
+            "type": "vcs",
+            "url": "git@github.com:skie/cakephp-queue.git"
         }
     ]
 }

@@ -8,7 +8,7 @@ The plugin includes support for queueing notifications, on-demand notifications,
 
 ## Requirements
 
-* PHP 8.2+
+* PHP 8.5+
 
 See [Versions.md](docs/Versions.md) for the supported CakePHP versions.
 

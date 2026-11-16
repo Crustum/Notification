@@ -141,15 +141,17 @@ trait NotificationTrait
      * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable The notifiable entity
      * @param string $notificationClass Notification class name
      * @param string $message Optional assertion message
+     * @param array<string, mixed>|null $expectedData Optional property => value map the notification must carry
      * @return void
      */
     public function assertNotificationSentTo(
         EntityInterface|AnonymousNotifiable $notifiable,
         string $notificationClass,
         string $message = '',
+        ?array $expectedData = null,
     ): void {
         $this->assertThat(
-            ['notifiable' => $notifiable, 'class' => $notificationClass],
+            ['notifiable' => $notifiable, 'class' => $notificationClass, 'data' => $expectedData],
             new NotificationSentTo(),
             $message,
         );
@@ -162,6 +164,7 @@ trait NotificationTrait
      * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable The notifiable entity
      * @param string $notificationClass Notification class name
      * @param string $message Optional assertion message
+     * @param array<string, mixed>|null $expectedData Optional property => value map the notification must carry
      * @return void
      */
     public function assertNotificationSentToAt(
@@ -169,9 +172,10 @@ trait NotificationTrait
         EntityInterface|AnonymousNotifiable $notifiable,
         string $notificationClass,
         string $message = '',
+        ?array $expectedData = null,
     ): void {
         $this->assertThat(
-            ['notifiable' => $notifiable, 'class' => $notificationClass],
+            ['notifiable' => $notifiable, 'class' => $notificationClass, 'data' => $expectedData],
             new NotificationSentTo($at),
             $message,
         );
@@ -183,16 +187,18 @@ trait NotificationTrait
      * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable The notifiable entity
      * @param string $notificationClass Notification class name
      * @param string $message Optional assertion message
+     * @param array<string, mixed>|null $expectedData Optional property => value map; only matching sends count
      * @return void
      */
     public function assertNotificationNotSentTo(
         EntityInterface|AnonymousNotifiable $notifiable,
         string $notificationClass,
         string $message = '',
+        ?array $expectedData = null,
     ): void {
-        $notifications = TestNotificationSender::getNotificationsFor($notifiable, $notificationClass);
-        $this->assertEmpty(
-            $notifications,
+        $this->assertThat(
+            ['notifiable' => $notifiable, 'class' => $notificationClass, 'data' => $expectedData],
+            $this->logicalNot(new NotificationSentTo()),
             $message ?: "Notification {$notificationClass} was sent to notifiable unexpectedly",
         );
     }
@@ -222,11 +228,19 @@ trait NotificationTrait
      *
      * @param string $notificationClass Notification class name
      * @param string $message Optional assertion message
+     * @param array<string, mixed>|null $expectedData Optional property => value map the notification must carry
      * @return void
      */
-    public function assertOnDemandNotificationSent(string $notificationClass, string $message = ''): void
-    {
-        $this->assertThat($notificationClass, new OnDemandNotificationSent(), $message);
+    public function assertOnDemandNotificationSent(
+        string $notificationClass,
+        string $message = '',
+        ?array $expectedData = null,
+    ): void {
+        $this->assertThat(
+            ['class' => $notificationClass, 'data' => $expectedData],
+            new OnDemandNotificationSent(),
+            $message,
+        );
     }
 
     /**

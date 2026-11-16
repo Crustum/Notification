@@ -12,6 +12,8 @@ use Crustum\Notification\NotificationManager;
 use Crustum\Notification\Test\TestCase\TestFailOnTimeoutNotification;
 use DateTime;
 use Interop\Queue\Processor;
+use JMac\Testing\Double;
+use JMac\Testing\Integrations\PHPUnit\VerifiesDoubles;
 
 /**
  * SendQueuedNotificationJob Test Case
@@ -20,6 +22,8 @@ use Interop\Queue\Processor;
  */
 class SendQueuedNotificationJobTest extends TestCase
 {
+    use VerifiesDoubles;
+
     /**
      * Test subject
      *
@@ -322,6 +326,51 @@ class SendQueuedNotificationJobTest extends TestCase
     }
 
     /**
+     * Test execute reads countCrashesAsExceptions from message
+     *
+     * @return void
+     */
+    public function testExecuteReadsCountCrashesAsExceptionsFromMessage(): void
+    {
+        $notification = new TestJobNotification('Test Title');
+        $serialized = serialize($notification);
+
+        $message = $this->createMessage([
+            'notifiableModel' => 'Users',
+            'notifiableForeignKey' => '1',
+            'notification' => $serialized,
+            'channels' => ['database'],
+            'countCrashesAsExceptions' => true,
+        ]);
+
+        $this->job->execute($message);
+
+        $this->assertTrue($this->job->countCrashesAsExceptions);
+    }
+
+    /**
+     * Test execute defaults countCrashesAsExceptions to false
+     *
+     * @return void
+     */
+    public function testExecuteDefaultsCountCrashesAsExceptionsToFalse(): void
+    {
+        $notification = new TestJobNotification('Test Title');
+        $serialized = serialize($notification);
+
+        $message = $this->createMessage([
+            'notifiableModel' => 'Users',
+            'notifiableForeignKey' => '1',
+            'notification' => $serialized,
+            'channels' => ['database'],
+        ]);
+
+        $this->job->execute($message);
+
+        $this->assertFalse($this->job->countCrashesAsExceptions);
+    }
+
+    /**
      * Create a mock Message object
      *
      * @param array<string, mixed> $arguments Message arguments
@@ -329,10 +378,10 @@ class SendQueuedNotificationJobTest extends TestCase
      */
     protected function createMessage(array $arguments): Message
     {
-        $message = $this->createStub(Message::class);
+        $message = Double::for(Message::class);
 
-        $message->method('getArgument')
-            ->willReturnCallback(fn($key) => $arguments[$key] ?? null);
+        $message->allows('getArgument')
+            ->resolves(fn($key = null) => $arguments[$key] ?? null);
 
         return $message;
     }

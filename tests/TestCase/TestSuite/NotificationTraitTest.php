@@ -138,6 +138,65 @@ class NotificationTraitTest extends TestCase
     }
 
     /**
+     * Test assertNotificationSentTo with expected data
+     *
+     * Ports the upstream `assertSentTo` data-array documentation: all
+     * specified properties must match with strict equality.
+     *
+     * @return void
+     */
+    public function testAssertNotificationSentToWithExpectedData(): void
+    {
+        $user = $this->Users->get(1);
+
+        $this->Users->notify($user, new PostPublished(1, 'Test Post'));
+
+        $this->assertNotificationSentTo($user, PostPublished::class, '', [
+            'post_id' => 1,
+            'post_title' => 'Test Post',
+        ]);
+    }
+
+    /**
+     * Test assertNotificationNotSentTo with expected data
+     *
+     * @return void
+     */
+    public function testAssertNotificationNotSentToWithExpectedData(): void
+    {
+        $user = $this->Users->get(1);
+
+        $this->Users->notify($user, new PostPublished(1, 'Test Post'));
+
+        $this->assertNotificationNotSentTo($user, PostPublished::class, '', [
+            'post_id' => 999,
+        ]);
+        $this->assertNotificationNotSentTo($user, PostPublished::class, '', [
+            'missing_key' => 'value',
+        ]);
+    }
+
+    /**
+     * Test assertOnDemandNotificationSent with expected data
+     *
+     * @return void
+     */
+    public function testAssertOnDemandNotificationSentWithExpectedData(): void
+    {
+        $anonymous = NotificationManager::route('mail', 'admin@example.com');
+
+        $anonymous->notify(new AdminAlert('Server Alert', 'critical'));
+
+        $this->assertOnDemandNotificationSent(AdminAlert::class, '', [
+            'message' => 'Server Alert',
+            'level' => 'critical',
+        ]);
+        $this->assertNotificationSentTo($anonymous, AdminAlert::class, '', [
+            'level' => 'critical',
+        ]);
+    }
+
+    /**
      * Test assertNotificationSentToChannel
      *
      * @return void

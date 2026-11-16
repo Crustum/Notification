@@ -159,6 +159,44 @@ class NotificationsPanel implements EventListenerInterface
     }
 
     /**
+     * Builds notification rows for the DebugBar waterfall.
+     *
+     * Duck-typed timeline source: the toolbar picks it up with no core
+     * changes. One row per notification group at the earliest send
+     * attempt, spanning the summed channel durations.
+     *
+     * @param array<string, mixed> $data Notifications panel data.
+     * @param float $requestStart Request start as microtime(true).
+     * @return list<array{at: float, duration_ms: float, type: string, label: string, panel: string, source: array{file: string, line: int}|null, ref: mixed}>
+     */
+    public function timelineEvents(array $data, float $requestStart): array
+    {
+        $events = [];
+        foreach (array_values((array)($data['groups'] ?? [])) as $group) {
+            $group = (array)$group;
+            $started = (float)($group['started'] ?? 0);
+            if ($started <= 0) {
+                continue;
+            }
+
+            $label = trim(($group['label'] ?? 'Notification') . ' (' . ($group['status_label'] ?? '') . ')');
+            $callsite = (array)($group['callsite'] ?? []);
+            $file = (string)($callsite['file'] ?? '');
+            $events[] = [
+                'at' => max(0.0, ($started - $requestStart) * 1000),
+                'duration_ms' => max(0.0, (float)($group['duration_ms'] ?? 0)),
+                'type' => 'notification',
+                'label' => mb_strimwidth($label, 0, 120, '…'),
+                'panel' => 'notifications',
+                'source' => $file !== '' ? ['file' => $file, 'line' => (int)($callsite['line'] ?? 0)] : null,
+                'ref' => $group['group_id'] ?? null,
+            ];
+        }
+
+        return $events;
+    }
+
+    /**
      * Subscribes the panel to notification lifecycle events.
      *
      * @return array<string, mixed>
@@ -598,11 +636,17 @@ class NotificationsPanel implements EventListenerInterface
             $skipped = 0;
             $pending = false;
             $duration = 0.0;
+            $started = null;
             $channels = [];
             $destinations = [];
             $failures = [];
             foreach ($bucket as $position => $attempt) {
                 $attempt = (array)$attempt;
+                $stamp = (float)($attempt['started'] ?? 0);
+                if ($stamp > 0 && ($started === null || $stamp < $started)) {
+                    $started = $stamp;
+                }
+
                 $status = (string)($attempt['status'] ?? 'pending');
                 if ($status === 'sent') {
                     $sent++;
@@ -672,6 +716,7 @@ class NotificationsPanel implements EventListenerInterface
                 'group_id' => 'notification-' . ($index + 1),
                 'notification' => $notification,
                 'label' => static::short($notification),
+                'started' => $started,
                 'status' => $status,
                 'status_label' => $statusLabel,
                 'sent_count' => $sent,

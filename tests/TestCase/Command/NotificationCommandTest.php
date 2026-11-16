@@ -7,6 +7,8 @@ use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
 use Crustum\Notification\Command\NotificationCommand;
+use JMac\Testing\Double;
+use JMac\Testing\Integrations\PHPUnit\VerifiesDoubles;
 use ReflectionClass;
 
 /**
@@ -14,6 +16,8 @@ use ReflectionClass;
  */
 class NotificationCommandTest extends TestCase
 {
+    use VerifiesDoubles;
+
     /**
      * Set up test case
      *
@@ -103,7 +107,7 @@ class NotificationCommandTest extends TestCase
     {
         $command = new NotificationCommand();
         $args = new Arguments([], ['channels' => 'database,mail'], []);
-        $io = $this->createStub(ConsoleIo::class);
+        $io = Double::for(ConsoleIo::class);
 
         $reflection = new ReflectionClass($command);
         $method = $reflection->getMethod('getSelectedChannels');
@@ -123,7 +127,7 @@ class NotificationCommandTest extends TestCase
     {
         $command = new NotificationCommand();
         $args = new Arguments([], ['channels' => 'all'], []);
-        $io = $this->createStub(ConsoleIo::class);
+        $io = Double::for(ConsoleIo::class);
 
         $reflection = new ReflectionClass($command);
         $method = $reflection->getMethod('getSelectedChannels');
@@ -236,15 +240,15 @@ class NotificationCommandTest extends TestCase
     {
         $command = new NotificationCommand();
         $args = new Arguments([], [], []);
-        $io = $this->createMock(ConsoleIo::class);
+        $io = Double::for(ConsoleIo::class);
 
-        $io->expects($this->once())
-            ->method('err')
-            ->with($this->stringContains('You must provide a notification name'));
+        $io->expects('err')
+            ->with('<error>You must provide a notification name.</error>')
+            ->times(1);
 
-        $io->expects($this->once())
-            ->method('out')
-            ->with($this->stringContains('Example:'));
+        $io->expects('out')
+            ->with('Example: bin/cake bake notification UserMentioned')
+            ->times(1);
 
         $result = $command->execute($args, $io);
 

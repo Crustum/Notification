@@ -17,12 +17,13 @@ class OnDemandNotificationSent extends NotificationConstraintBase
     /**
      * Checks if on-demand notification was sent
      *
-     * @param mixed $other Notification class name
+     * @param mixed $other Notification class name, or array with 'class' and optional 'data' keys
      * @return bool
      */
     protected function matches(mixed $other): bool
     {
-        $notificationClass = $other;
+        $notificationClass = is_array($other) ? $other['class'] : $other;
+        $expectedData = is_array($other) ? ($other['data'] ?? null) : null;
         $notifications = $this->getNotifications();
 
         foreach ($notifications as $notification) {
@@ -30,7 +31,9 @@ class OnDemandNotificationSent extends NotificationConstraintBase
                 $notification['notifiable'] instanceof AnonymousNotifiable &&
                 $notification['notification_class'] === $notificationClass
             ) {
-                return true;
+                if ($expectedData === null || $this->notificationDataMatches($notification, $expectedData)) {
+                    return true;
+                }
             }
         }
 

@@ -232,6 +232,7 @@ class NotificationManager
     public static function resetSender(): void
     {
         static::$_senderClass = null;
+        static::$_locale = null;
         static::clearSenderCache();
     }
 
@@ -279,7 +280,9 @@ class NotificationManager
      */
     public static function send(EntityInterface|AnonymousNotifiable|iterable $notifiables, Notification $notification): void
     {
-        static::getSender(static::$_locale)->send($notifiables, $notification);
+        $sender = static::getSender(static::$_locale);
+        static::$_locale = null;
+        $sender->send($notifiables, $notification);
     }
 
     /**
@@ -292,7 +295,9 @@ class NotificationManager
      */
     public static function sendNow(EntityInterface|AnonymousNotifiable|iterable $notifiables, Notification $notification, ?array $channels = null): void
     {
-        static::getSender(static::$_locale)->sendNow($notifiables, $notification, $channels);
+        $sender = static::getSender(static::$_locale);
+        static::$_locale = null;
+        $sender->sendNow($notifiables, $notification, $channels);
     }
 
     /**

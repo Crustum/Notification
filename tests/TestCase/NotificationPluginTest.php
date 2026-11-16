@@ -9,6 +9,8 @@ use Cake\Core\PluginApplicationInterface;
 use Cake\TestSuite\TestCase;
 use Crustum\Notification\Command\NotificationCommand;
 use Crustum\Notification\NotificationPlugin;
+use JMac\Testing\Double;
+use JMac\Testing\Integrations\PHPUnit\VerifiesDoubles;
 
 /**
  * NotificationPlugin Test Case
@@ -17,6 +19,8 @@ use Crustum\Notification\NotificationPlugin;
  */
 class NotificationPluginTest extends TestCase
 {
+    use VerifiesDoubles;
+
     /**
      * Test bootstrap method
      *
@@ -24,7 +28,7 @@ class NotificationPluginTest extends TestCase
      */
     public function testBootstrap(): void
     {
-        $app = $this->createStub(PluginApplicationInterface::class);
+        $app = Double::for(PluginApplicationInterface::class);
         $plugin = new NotificationPlugin();
 
         $plugin->bootstrap($app);
@@ -57,7 +61,7 @@ class NotificationPluginTest extends TestCase
     public function testConsolePreservesExistingCommands(): void
     {
         $commands = new CommandCollection();
-        $testCommand = $this->createStub(CommandInterface::class);
+        $testCommand = Double::for(CommandInterface::class);
         $commands->add('test', $testCommand);
         $plugin = new NotificationPlugin();
 

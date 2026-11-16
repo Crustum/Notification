@@ -8,6 +8,8 @@ use Crustum\Notification\AnonymousNotifiable;
 use Crustum\Notification\Channel\DatabaseChannel;
 use Crustum\Notification\Channel\MailChannel;
 use Crustum\Notification\NotificationManager;
+use Crustum\Notification\NotificationSender;
+use Crustum\Notification\TestSuite\TestNotificationSender;
 
 /**
  * NotificationManager Test Case
@@ -141,12 +143,81 @@ class NotificationManagerTest extends TestCase
     }
 
     /**
+     * Test sender locale setter is fluent
+     *
+     * @return void
+     */
+    public function testSenderLocaleSetterIsFluent(): void
+    {
+        $sender = new NotificationSender();
+
+        $this->assertSame($sender, $sender->locale('fr'));
+    }
+
+    /**
+     * Test mail is sent with manager selected locale after another notification was sent
+     *
+     * Ports testMailIsSentWithFacadeSelectedLocaleAfterAnotherNotificationWasSent:
+     * a plain send must not swallow a later manager locale.
+     *
+     * @return void
+     */
+    public function testMailIsSentWithManagerSelectedLocaleAfterAnotherNotificationWasSent(): void
+    {
+        TestNotificationSender::replaceAllSenders();
+        TestNotificationSender::clearNotifications();
+
+        $anonymous = NotificationManager::route('mail', 'test@example.com');
+
+        NotificationManager::sendNow($anonymous, new TestNotification());
+        NotificationManager::locale('fr');
+        NotificationManager::sendNow($anonymous, new TestNotification());
+
+        $notifications = TestNotificationSender::getNotifications();
+
+        $this->assertCount(2, $notifications);
+        $this->assertNull($notifications[0]['locale']);
+        $this->assertSame('fr', $notifications[1]['locale']);
+
+        TestNotificationSender::clearNotifications();
+    }
+
+    /**
+     * Test manager selected locale is not used for later notifications
+     *
+     * Ports testFacadeSelectedLocaleIsNotUsedForLaterNotifications:
+     * the pending locale is consumed by a single send.
+     *
+     * @return void
+     */
+    public function testManagerSelectedLocaleIsNotUsedForLaterNotifications(): void
+    {
+        TestNotificationSender::replaceAllSenders();
+        TestNotificationSender::clearNotifications();
+
+        $anonymous = NotificationManager::route('mail', 'test@example.com');
+
+        NotificationManager::locale('fr');
+        NotificationManager::sendNow($anonymous, new TestNotification());
+        NotificationManager::sendNow($anonymous, new TestNotification());
+
+        $notifications = TestNotificationSender::getNotifications();
+
+        $this->assertCount(2, $notifications);
+        $this->assertSame('fr', $notifications[0]['locale']);
+        $this->assertNull($notifications[1]['locale']);
+
+        TestNotificationSender::clearNotifications();
+    }
+
+    /**
      * Tear down static manager state
      *
      * @return void
      */
     protected function tearDown(): void
     {
+        TestNotificationSender::clearNotifications();
         NotificationManager::resetSender();
 
         parent::tearDown();

@@ -17,7 +17,7 @@ jobs:
   tests:
     uses: Crustum/.github/.github/workflows/testsuite-without-db.yml@v1
     with:
-      php-versions: '["8.2", "8.3", "8.4", "8.5", "8.6"]'
+      php-versions: '["8.3", "8.4", "8.5", "8.6"]'
       os: '["ubuntu-24.04", "windows-latest"]'
       extensions: 'mbstring, intl, pdo_sqlite'
       test-cmd: 'vendor/bin/phpunit --configuration=phpunit.xml --display-deprecations --display-incomplete --display-skipped'

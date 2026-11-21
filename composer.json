@@ -21,7 +21,7 @@
         "cakedc/cakephp-phpstan": "^4.3",
         "cakephp/bake": "^3.0",
         "cakephp/cakephp-codesniffer": "^5.3",
-        "jasonmccreary/double": "^1.1",
+        "jasonmccreary/double": "^1.1.1",
         "crustum/debug-bar": "dev-main",
         "crustum/plugin-manifest": "^1.2",
         "phpstan/phpstan": "^2.3",

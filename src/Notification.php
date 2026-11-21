@@ -85,6 +85,16 @@ abstract class Notification
     protected bool $failOnTimeout = false;
 
     /**
+     * Whether worker crashes should count towards the maximum exceptions
+     *
+     * Forward-compat hint carried in the queue payload. The Cake queue
+     * worker currently ignores it.
+     *
+     * @var bool
+     */
+    protected bool $countCrashesAsExceptions = false;
+
+    /**
      * Get the notification delivery channels
      *
      * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable The entity to notify
@@ -249,6 +259,32 @@ abstract class Notification
     public function shouldFailOnTimeout(): bool
     {
         return $this->failOnTimeout;
+    }
+
+    /**
+     * Set whether worker crashes should count towards the maximum exceptions
+     *
+     * Forward-compat hint carried in the queue payload. The Cake queue
+     * worker currently ignores it.
+     *
+     * @param bool $value True to count worker crashes as exceptions
+     * @return $this
+     */
+    public function countCrashesAsExceptions(bool $value = true)
+    {
+        $this->countCrashesAsExceptions = $value;
+
+        return $this;
+    }
+
+    /**
+     * Whether worker crashes should count towards the maximum exceptions
+     *
+     * @return bool
+     */
+    public function shouldCountCrashesAsExceptions(): bool
+    {
+        return $this->countCrashesAsExceptions;
     }
 
     /**

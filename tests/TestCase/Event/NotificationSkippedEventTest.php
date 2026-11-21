@@ -8,12 +8,16 @@ use Cake\ORM\Entity;
 use Cake\TestSuite\TestCase;
 use Crustum\Notification\Event\NotificationSkippedEvent;
 use Crustum\Notification\Notification;
+use JMac\Testing\Double;
+use JMac\Testing\Integrations\PHPUnit\VerifiesDoubles;
 
 /**
  * NotificationSkippedEvent Test Case
  */
 class NotificationSkippedEventTest extends TestCase
 {
+    use VerifiesDoubles;
+
     /**
      * Test constructor sets event data correctly
      *
@@ -22,7 +26,7 @@ class NotificationSkippedEventTest extends TestCase
     public function testConstructorSetsEventData(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'mail';
 
         $event = new NotificationSkippedEvent($notifiable, $notification, $channel);
@@ -41,7 +45,7 @@ class NotificationSkippedEventTest extends TestCase
     public function testGetNotifiableReturnsEntity(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'database';
 
         $event = new NotificationSkippedEvent($notifiable, $notification, $channel);
@@ -58,7 +62,7 @@ class NotificationSkippedEventTest extends TestCase
     public function testGetNotificationReturnsNotification(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'database';
 
         $event = new NotificationSkippedEvent($notifiable, $notification, $channel);
@@ -75,7 +79,7 @@ class NotificationSkippedEventTest extends TestCase
     public function testGetChannelReturnsChannelName(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'mail';
 
         $event = new NotificationSkippedEvent($notifiable, $notification, $channel);

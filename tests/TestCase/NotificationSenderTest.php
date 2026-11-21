@@ -8,11 +8,13 @@ use Cake\Queue\QueueManager;
 use Cake\Queue\TestSuite\QueueTrait as TestQueueTrait;
 use Cake\Queue\TestSuite\TestQueueClient;
 use Cake\TestSuite\TestCase;
+use Crustum\Notification\AnonymousNotifiable;
 use Crustum\Notification\Job\SendQueuedNotificationJob;
 use Crustum\Notification\Model\Entity\Notification as NotificationEntity;
 use Crustum\Notification\NotificationManager;
 use Crustum\Notification\NotificationSender;
 use ReflectionClass;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -261,6 +263,55 @@ class NotificationSenderTest extends TestCase
         } catch (Throwable) {
             $this->assertTrue($eventFired, 'Failed event should have been dispatched');
             $this->assertNotNull($exceptionCaught, 'Exception should have been caught in event');
+        }
+    }
+
+    /**
+     * Test that the failed event is dispatched once per channel
+     *
+     * Ports test_notification_failed_is_dispatched_after_a_channel_dispatched_it_without_throwing:
+     * the flag resets before each channel send, so a channel that reported
+     * failure itself does not cause a double dispatch, and a later throwing
+     * channel still reports.
+     *
+     * @return void
+     */
+    public function testFailedEventIsDispatchedOncePerChannel(): void
+    {
+        $sender = new NotificationSender();
+
+        NotificationManager::setConfig('push', [
+            'className' => TestSelfReportingChannel::class,
+            'sender' => $sender,
+            'channelName' => 'push',
+        ]);
+        NotificationManager::setConfig('sms', [
+            'className' => TestThrowingChannel::class,
+        ]);
+
+        $failed = [];
+        $sender->getEventManager()->on(
+            'Model.Notification.failed',
+            function ($event) use (&$failed): void {
+                $failed[] = $event->getData('channel');
+            },
+        );
+
+        $notifiable = new AnonymousNotifiable();
+        $notification = new TestDatabaseNotification();
+
+        try {
+            $sender->sendNow($notifiable, $notification, ['push']);
+            $this->fail('Expected exception was not thrown.');
+        } catch (RuntimeException) {
+            // Expected from the self-reporting channel.
+        }
+
+        try {
+            $sender->sendNow($notifiable, $notification, ['sms']);
+            $this->fail('Expected exception was not thrown.');
+        } catch (RuntimeException) {
+            $this->assertSame(['push', 'sms'], $failed);
         }
     }
 

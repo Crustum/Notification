@@ -8,12 +8,16 @@ use Cake\ORM\Entity;
 use Cake\TestSuite\TestCase;
 use Crustum\Notification\Event\NotificationSentEvent;
 use Crustum\Notification\Notification;
+use JMac\Testing\Double;
+use JMac\Testing\Integrations\PHPUnit\VerifiesDoubles;
 
 /**
  * NotificationSentEvent Test Case
  */
 class NotificationSentEventTest extends TestCase
 {
+    use VerifiesDoubles;
+
     /**
      * Test constructor sets event data correctly
      *
@@ -22,7 +26,7 @@ class NotificationSentEventTest extends TestCase
     public function testConstructorSetsEventData(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'database';
         $response = ['id' => 123];
 
@@ -43,7 +47,7 @@ class NotificationSentEventTest extends TestCase
     public function testConstructorWithNullResponse(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'mail';
 
         $event = new NotificationSentEvent($notifiable, $notification, $channel);
@@ -59,7 +63,7 @@ class NotificationSentEventTest extends TestCase
     public function testGetNotifiableReturnsEntity(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'database';
 
         $event = new NotificationSentEvent($notifiable, $notification, $channel);
@@ -76,7 +80,7 @@ class NotificationSentEventTest extends TestCase
     public function testGetNotificationReturnsNotification(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'database';
 
         $event = new NotificationSentEvent($notifiable, $notification, $channel);
@@ -93,7 +97,7 @@ class NotificationSentEventTest extends TestCase
     public function testGetChannelReturnsChannelName(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'mail';
 
         $event = new NotificationSentEvent($notifiable, $notification, $channel);
@@ -109,7 +113,7 @@ class NotificationSentEventTest extends TestCase
     public function testGetResponseReturnsResponse(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'database';
         $response = ['id' => 123, 'status' => 'sent'];
 
@@ -126,7 +130,7 @@ class NotificationSentEventTest extends TestCase
     public function testGetResponseReturnsNullWhenNotProvided(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'mail';
 
         $event = new NotificationSentEvent($notifiable, $notification, $channel);

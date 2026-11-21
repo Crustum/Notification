@@ -22,13 +22,14 @@ class NotificationSentTo extends NotificationConstraintBase
     /**
      * Checks if notification was sent to the notifiable
      *
-     * @param mixed $other Array with 'notifiable' and 'class' keys
+     * @param mixed $other Array with 'notifiable' and 'class' keys, plus optional 'data' map
      * @return bool
      */
     protected function matches(mixed $other): bool
     {
         $notifiable = $other['notifiable'];
         $notificationClass = $other['class'];
+        $expectedData = $other['data'] ?? null;
 
         $notifiableClass = $notifiable::class;
         $notifiableId = $this->getNotifiableKey($notifiable);
@@ -41,7 +42,9 @@ class NotificationSentTo extends NotificationConstraintBase
                 $notification['notifiable_id'] === $notifiableId &&
                 $notification['notification_class'] === $notificationClass
             ) {
-                return true;
+                if ($expectedData === null || $this->notificationDataMatches($notification, $expectedData)) {
+                    return true;
+                }
             }
         }
 

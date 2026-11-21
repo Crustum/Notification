@@ -251,4 +251,35 @@ class NotificationTest extends TestCase
         $this->assertEquals('redis', $notification->getConnection());
         $this->assertEquals(120, $notification->getDelay());
     }
+
+    /**
+     * Test countCrashesAsExceptions defaults to false
+     *
+     * @return void
+     */
+    public function testCountCrashesAsExceptionsDefaultsToFalse(): void
+    {
+        $notification = new TestNotification();
+
+        $this->assertFalse($notification->shouldCountCrashesAsExceptions());
+    }
+
+    /**
+     * Test countCrashesAsExceptions setter is fluent
+     *
+     * @return void
+     */
+    public function testCountCrashesAsExceptionsSetter(): void
+    {
+        $notification = new TestNotification();
+
+        $result = $notification->countCrashesAsExceptions();
+
+        $this->assertSame($notification, $result);
+        $this->assertTrue($notification->shouldCountCrashesAsExceptions());
+
+        $notification->countCrashesAsExceptions(false);
+
+        $this->assertFalse($notification->shouldCountCrashesAsExceptions());
+    }
 }

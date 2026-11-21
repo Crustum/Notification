@@ -35,6 +35,15 @@ class SendQueuedNotificationJob implements JobInterface
     public bool $failOnTimeout = false;
 
     /**
+     * Whether worker crashes should count towards the maximum exceptions
+     *
+     * Forward-compat hint. The Cake queue worker currently ignores it.
+     *
+     * @var bool
+     */
+    public bool $countCrashesAsExceptions = false;
+
+    /**
      * Execute the queued notification job
      *
      * @param \Cake\Queue\Job\Message $message Queue message
@@ -47,6 +56,7 @@ class SendQueuedNotificationJob implements JobInterface
         $serializedNotification = $message->getArgument('notification');
         $channels = $message->getArgument('channels');
         $this->failOnTimeout = $message->getArgument('failOnTimeout') ?? false;
+        $this->countCrashesAsExceptions = $message->getArgument('countCrashesAsExceptions') ?? false;
 
         if (empty($notifiableModel) || empty($notifiableForeignKey) || empty($serializedNotification)) {
             Log::error('Notification job received invalid arguments');

@@ -35,6 +35,17 @@ class NotificationSender
     protected ?string $locale;
 
     /**
+     * Whether a notification failed event has been dispatched for the current channel send
+     *
+     * Channels that dispatch `Model.Notification.failed` themselves and then
+     * throw must mark the event via `markFailedEventDispatched()` so the
+     * sender does not dispatch it a second time.
+     *
+     * @var bool
+     */
+    protected bool $failedEventWasDispatched = false;
+
+    /**
      * Constructor
      *
      * @param string|null $locale Optional locale for notifications
@@ -42,6 +53,32 @@ class NotificationSender
     public function __construct(?string $locale = null)
     {
         $this->locale = $locale;
+    }
+
+    /**
+     * Set the locale to be used when sending notifications
+     *
+     * @param string|null $locale Locale code, or null to clear
+     * @return $this
+     */
+    public function locale(?string $locale)
+    {
+        $this->locale = $locale;
+
+        return $this;
+    }
+
+    /**
+     * Mark the notification failed event as dispatched for the current channel send
+     *
+     * Call this from a channel that dispatches `Model.Notification.failed`
+     * itself before throwing, so the sender does not dispatch it again.
+     *
+     * @return void
+     */
+    public function markFailedEventDispatched(): void
+    {
+        $this->failedEventWasDispatched = true;
     }
 
     /**
@@ -138,14 +175,18 @@ class NotificationSender
             $channelInstance = NotificationManager::channel($channel);
             $response = $channelInstance->send($notifiable, $notification);
         } catch (Throwable $throwable) {
-            $this->dispatchEvent('Model.Notification.failed', [
-                'notifiable' => $notifiable,
-                'notification' => $notification,
-                'channel' => $channel,
-                'exception' => $throwable,
-            ]);
+            if (!$this->failedEventWasDispatched) {
+                $this->dispatchEvent('Model.Notification.failed', [
+                    'notifiable' => $notifiable,
+                    'notification' => $notification,
+                    'channel' => $channel,
+                    'exception' => $throwable,
+                ]);
+            }
 
             throw $throwable;
+        } finally {
+            $this->failedEventWasDispatched = false;
         }
 
         if (method_exists($notification, 'afterSending')) {
@@ -277,6 +318,7 @@ class NotificationSender
                     'notification' => serialize($queuedNotification),
                     'channels' => [$channel],
                     'failOnTimeout' => $queuedNotification->shouldFailOnTimeout(),
+                    'countCrashesAsExceptions' => $queuedNotification->shouldCountCrashesAsExceptions(),
                 ];
 
                 $connection = $queuedNotification->getConnection();

@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0]
+
+### Added
+
+- `NotificationSender::locale()` setter for applying a pending locale to the sender
+- `NotificationSender::markFailedEventDispatched()` hook for channels that dispatch `Model.Notification.failed` themselves before throwing
+- `Notification::countCrashesAsExceptions()` / `shouldCountCrashesAsExceptions()` forward-compat hint, carried through `SendQueuedNotificationJob::$countCrashesAsExceptions` queue payload (ignored by the Cake queue worker)
+- `jasonmccreary/double` dev dependency; test suite converted from PHPUnit built-in mocks to `Double::for()` + `VerifiesDoubles`
+- Optional `$expectedData` property map on `assertNotificationSentTo()`, `assertNotificationSentToAt()`, `assertNotificationNotSentTo()` and `assertOnDemandNotificationSent()`
+
+### Fixed
+
+- Manager-selected locale no longer leaks into later notifications (pending locale is consumed on resolve)
+- The failed event is dispatched exactly once per channel send, even when the channel already reported failure itself
+
 ## [1.3.0]
 
 ### Added

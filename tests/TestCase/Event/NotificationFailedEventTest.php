@@ -9,6 +9,8 @@ use Cake\TestSuite\TestCase;
 use Crustum\Notification\Event\NotificationFailedEvent;
 use Crustum\Notification\Notification;
 use Exception;
+use JMac\Testing\Double;
+use JMac\Testing\Integrations\PHPUnit\VerifiesDoubles;
 use Throwable;
 
 /**
@@ -16,6 +18,8 @@ use Throwable;
  */
 class NotificationFailedEventTest extends TestCase
 {
+    use VerifiesDoubles;
+
     /**
      * Test constructor sets event data correctly
      *
@@ -24,7 +28,7 @@ class NotificationFailedEventTest extends TestCase
     public function testConstructorSetsEventData(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'mail';
         $exception = new Exception('Failed to send');
 
@@ -45,7 +49,7 @@ class NotificationFailedEventTest extends TestCase
     public function testGetNotifiableReturnsEntity(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'database';
         $exception = new Exception('Failed');
 
@@ -63,7 +67,7 @@ class NotificationFailedEventTest extends TestCase
     public function testGetNotificationReturnsNotification(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'database';
         $exception = new Exception('Failed');
 
@@ -81,7 +85,7 @@ class NotificationFailedEventTest extends TestCase
     public function testGetChannelReturnsChannelName(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'mail';
         $exception = new Exception('Failed');
 
@@ -98,7 +102,7 @@ class NotificationFailedEventTest extends TestCase
     public function testGetExceptionReturnsException(): void
     {
         $notifiable = new Entity(['id' => 1]);
-        $notification = $this->createStub(Notification::class);
+        $notification = Double::for(Notification::class);
         $channel = 'mail';
         $exception = new Exception('Failed to send notification');
 
